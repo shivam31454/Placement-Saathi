@@ -226,125 +226,124 @@ const AIMockInterview = () => {
                                     </div>
                                 </div>
                             </div>
+                        ) : !isStarted ? (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10 bg-slate-900/80">
+                                <div className="w-full h-full absolute inset-0 -z-10 opacity-50">
+                                    <Canvas shadows camera={{ position: [0, 0, 4], fov: 40 }}>
+                                        <Environment preset="city" />
+                                        <Avatar gender={selectedGender} isSpeaking={false} />
+                                    </Canvas>
+                                </div>
+                                <h2 className="text-3xl font-bold mb-4 drop-shadow-md">Ready to Practice?</h2>
+                                <p className="text-slate-200 mb-8 max-w-md drop-shadow-md font-medium">
+                                    I will simulate a real interview using advanced AI.
+                                </p>
+                                <Button size="lg" onClick={startInterview} className="px-8 py-4 text-lg shadow-xl">
+                                    <Play className="w-5 h-5 mr-2" /> Start Interview
+                                </Button>
+                                <button onClick={() => setSelectedGender(null)} className="mt-4 text-sm text-slate-300 hover:text-white underline">
+                                    Change Interviewer
+                                </button>
                             </div>
-                ) : !isStarted ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10 bg-slate-900/80">
-                    <div className="w-full h-full absolute inset-0 -z-10 opacity-50">
-                        <Canvas shadows camera={{ position: [0, 0, 4], fov: 40 }}>
-                            <Environment preset="city" />
-                            <Avatar gender={selectedGender} isSpeaking={false} />
-                        </Canvas>
-                    </div>
-                    <h2 className="text-3xl font-bold mb-4 drop-shadow-md">Ready to Practice?</h2>
-                    <p className="text-slate-200 mb-8 max-w-md drop-shadow-md font-medium">
-                        I will simulate a real interview using advanced AI.
-                    </p>
-                    <Button size="lg" onClick={startInterview} className="px-8 py-4 text-lg shadow-xl">
-                        <Play className="w-5 h-5 mr-2" /> Start Interview
-                    </Button>
-                    <button onClick={() => setSelectedGender(null)} className="mt-4 text-sm text-slate-300 hover:text-white underline">
-                        Change Interviewer
-                    </button>
-                </div>
-                ) : (
-                <div className="flex-1 w-full h-full relative">
-                    <Canvas shadows camera={{ position: [0, 0, 2.5], fov: 30 }}>
-                        <Environment preset="city" />
-                        <ambientLight intensity={0.5} />
-                        <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} shadow-mapSize={[512, 512]} castShadow />
-                        <Avatar gender={selectedGender} isSpeaking={isSpeaking} />
-                        <ContactShadows resolution={1024} scale={10} blur={1} opacity={0.5} far={10} color="#8a6246" />
-                        <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 2.2} maxPolarAngle={Math.PI / 2.2} />
-                    </Canvas>
+                        ) : (
+                            <div className="flex-1 w-full h-full relative">
+                                <Canvas shadows camera={{ position: [0, 0, 2.5], fov: 30 }}>
+                                    <Environment preset="city" />
+                                    <ambientLight intensity={0.5} />
+                                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} shadow-mapSize={[512, 512]} castShadow />
+                                    <Avatar gender={selectedGender} isSpeaking={isSpeaking} />
+                                    <ContactShadows resolution={1024} scale={10} blur={1} opacity={0.5} far={10} color="#8a6246" />
+                                    <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 2.2} maxPolarAngle={Math.PI / 2.2} />
+                                </Canvas>
 
-                    {isListening && (
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 rounded-full text-white text-sm backdrop-blur-sm">
-                            Listening to you...
-                        </div>
-                    )}
-                </div>
+                                {isListening && (
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-2 rounded-full text-white text-sm backdrop-blur-sm">
+                                        Listening to you...
+                                    </div>
+                                )}
+                            </div>
                         )}
-            </Card>
+                    </Card>
 
-            {/* Right Panel: Chat Interface */}
-            <Card className="col-span-1 flex flex-col h-full border-slate-200 dark:border-slate-800">
-                <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Live Transcript</span>
-                    {isStarted && (
-                        <button
-                            onClick={() => {
-                                setIsStarted(false);
-                                setSelectedGender(null);
-                                if (synthRef.current) synthRef.current.cancel();
-                            }}
-                            className="text-xs text-red-500 hover:text-red-600 font-medium"
-                        >
-                            End Session
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.length === 0 && (
-                        <div className="text-center text-slate-400 text-sm mt-10">
-                            Conversation will appear here...
+                    {/* Right Panel: Chat Interface */}
+                    <Card className="col-span-1 flex flex-col h-full border-slate-200 dark:border-slate-800">
+                        <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Live Transcript</span>
+                            {isStarted && (
+                                <button
+                                    onClick={() => {
+                                        setIsStarted(false);
+                                        setSelectedGender(null);
+                                        if (synthRef.current) synthRef.current.cancel();
+                                    }}
+                                    className="text-xs text-red-500 hover:text-red-600 font-medium"
+                                >
+                                    End Session
+                                </button>
+                            )}
                         </div>
-                    )}
-                    {messages.map((msg, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
-                                ? 'bg-primary-600 text-white rounded-br-none'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none'
-                                }`}>
-                                {msg.text}
-                            </div>
-                        </motion.div>
-                    ))}
-                    <div ref={chatEndRef} />
-                </div>
 
-                <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-b-xl">
-                    {micError && (
-                        <div className="mb-2 p-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {micError}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {messages.length === 0 && (
+                                <div className="text-center text-slate-400 text-sm mt-10">
+                                    Conversation will appear here...
+                                </div>
+                            )}
+                            {messages.map((msg, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                    <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
+                                        ? 'bg-primary-600 text-white rounded-br-none'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none'
+                                        }`}>
+                                        {msg.text}
+                                    </div>
+                                </motion.div>
+                            ))}
+                            <div ref={chatEndRef} />
                         </div>
-                    )}
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={toggleMic}
-                            disabled={!isStarted || isLoading}
-                            className={`p-3 rounded-full transition-colors ${isListening
-                                ? 'bg-red-100 text-red-600 animate-pulse'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary-600'
-                                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                        >
-                            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                        </button>
-                        <input
-                            type="text"
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
-                            placeholder={isLoading ? "AI is thinking..." : "Type your answer..."}
-                            disabled={!isStarted || isLoading}
-                            className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-full px-4 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm dark:text-white"
-                        />
-                        <button
-                            type="submit"
-                            disabled={!inputText.trim() || !isStarted || isLoading}
-                            className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <Send className="w-4 h-4 ml-0.5" />
-                        </button>
-                    </form>
+
+                        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-b-xl">
+                            {micError && (
+                                <div className="mb-2 p-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" /> {micError}
+                                </div>
+                            )}
+                            <form onSubmit={handleSendMessage} className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={toggleMic}
+                                    disabled={!isStarted || isLoading}
+                                    className={`p-3 rounded-full transition-colors ${isListening
+                                        ? 'bg-red-100 text-red-600 animate-pulse'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary-600'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                >
+                                    {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                                </button>
+                                <input
+                                    type="text"
+                                    value={inputText}
+                                    onChange={(e) => setInputText(e.target.value)}
+                                    placeholder={isLoading ? "AI is thinking..." : "Type your answer..."}
+                                    disabled={!isStarted || isLoading}
+                                    className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-full px-4 focus:ring-2 focus:ring-primary-500/20 outline-none text-sm dark:text-white"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!inputText.trim() || !isStarted || isLoading}
+                                    className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <Send className="w-4 h-4 ml-0.5" />
+                                </button>
+                            </form>
+                        </div>
+                    </Card>
                 </div>
-            </Card>
-        </div>
             </div >
         </div >
     );
