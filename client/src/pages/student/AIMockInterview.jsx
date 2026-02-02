@@ -218,9 +218,8 @@ const AIMockInterview = () => {
                                             onClick={() => setSelectedGender('male')}
                                             className="group cursor-pointer flex flex-col items-center gap-4 transition-transform hover:scale-105"
                                         >
-                                            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-slate-700 group-hover:border-primary-500 transition-colors bg-slate-800">
-                                                <img src="https://models.readyplayer.me/679b884964648d88e04ccfa7.png" alt="Male Interviewer" className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                                                <User className="absolute inset-0 w-full h-full p-8 text-slate-400 opacity-20" />
+                                            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-slate-700 group-hover:border-primary-500 transition-colors bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                                                <User className="w-20 h-20 text-white" />
                                             </div>
                                             <span className="text-xl font-medium">David</span>
                                         </div>
@@ -228,9 +227,8 @@ const AIMockInterview = () => {
                                             onClick={() => setSelectedGender('female')}
                                             className="group cursor-pointer flex flex-col items-center gap-4 transition-transform hover:scale-105"
                                         >
-                                            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-slate-700 group-hover:border-primary-500 transition-colors bg-slate-800">
-                                                <img src="https://models.readyplayer.me/679b886c64648d88e04ccfaf.png" alt="Female Interviewer" className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                                                <User className="absolute inset-0 w-full h-full p-8 text-slate-400 opacity-20" />
+                                            <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-slate-700 group-hover:border-primary-500 transition-colors bg-gradient-to-br from-pink-500 to-purple-700 flex items-center justify-center">
+                                                <User className="w-20 h-20 text-white" />
                                             </div>
                                             <span className="text-xl font-medium">Sarah</span>
                                         </div>

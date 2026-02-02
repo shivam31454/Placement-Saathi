@@ -50,5 +50,5 @@ export function Avatar({ url, isSpeaking }) {
 }
 
 // Preload standard models to avoid initial lag
-useGLTF.preload('https://models.readyplayer.me/679b884964648d88e04ccfa7.glb?morphTargets=ARKit&textureAtlas=1024');
-useGLTF.preload('https://models.readyplayer.me/679b886c64648d88e04ccfaf.glb?morphTargets=ARKit&textureAtlas=1024');
+useGLTF.preload('https://models.readyplayer.me/658cd1105e197f2613fb2512.glb');
+useGLTF.preload('https://models.readyplayer.me/658cd1405e197f2613fb2518.glb');
