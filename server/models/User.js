@@ -8,6 +8,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a name'],
     },
+    leetcodeUsername: {
+        type: String,
+        default: null
+    },
     email: {
         type: String,
         required: [true, 'Please provide an email'],

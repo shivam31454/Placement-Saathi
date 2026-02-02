@@ -15,8 +15,14 @@ import LiveTest from './pages/student/LiveTest';
 import TestResult from './pages/student/TestResult';
 import ResumeScan from './pages/student/ResumeScan';
 import StudyRoadmap from './pages/student/StudyRoadmap';
+import InterviewExperiences from './pages/student/InterviewExperiences';
+import AIMockInterview from './pages/student/AIMockInterview';
+import LearningDashboard from './pages/learning/LearningDashboard';
+import SubjectView from './pages/learning/SubjectView';
+import PracticeArena from './pages/learning/PracticeArena';
 import LandingPage from './pages/LandingPage';
 import AIChatWidget from './components/chat/AIChatWidget';
+import ThemeToggle from './components/ui/ThemeToggle';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -91,6 +97,48 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/experiences"
+          element={
+            <ProtectedRoute allowedRoles={['student', 'admin']}>
+              <InterviewExperiences />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mock-interview"
+          element={
+            <ProtectedRoute allowedRoles={['student', 'admin']}>
+              <AIMockInterview />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Learning & Practice Routes */}
+        <Route
+          path="/learning"
+          element={
+            <ProtectedRoute allowedRoles={['student', 'admin']}>
+              <LearningDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learning/:subjectId"
+          element={
+            <ProtectedRoute allowedRoles={['student', 'admin']}>
+              <SubjectView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/practice/:topicId"
+          element={
+            <ProtectedRoute allowedRoles={['student', 'admin']}>
+              <PracticeArena />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin Routes */}
         <Route
@@ -114,6 +162,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
       </Routes>
       <AIChatWidget />
+      <ThemeToggle />
     </Router>
   );
 }

@@ -32,7 +32,15 @@ app.use('/api/v1/questions', questions);
 app.use('/api/v1/tests', tests);
 app.use('/api/v1/analytics', analytics);
 app.use('/api/v1/resume', resume);
-app.use('/api/v1/ai', require('./routes/ai'));
+app.use('/api/v1/ai', require('./routes/aiRoutes'));
+app.use('/api/v1/experiences', require('./routes/experiencesRoutes'));
+app.use('/api/v1/leetcode', require('./routes/leetcodeRoutes'));
+app.use('/api/v1/learning', require('./routes/learningRoutes'));
+app.use('/api/v1/practice', require('./routes/practiceRoutes'));
+app.use('/api/v1/admin', require('./routes/adminRoutes'));
+
+
+
 
 app.get('/', (req, res) => {
     res.send('API is running...');
@@ -43,7 +51,20 @@ app.get('/', (req, res) => {
 const errorHandler = require('./middleware/error');
 app.use(errorHandler);
 
+const startServer = (port) => {
+    const server = app.listen(port, () => {
+        console.log(`Server running on port ${server.address().port}`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`Port ${port} is busy, trying a random port...`);
+            startServer(0); // 0 means random available port
+        } else {
+            console.error(err);
+        }
+    });
+};
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+startServer(PORT);

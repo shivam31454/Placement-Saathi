@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles, Minimize2, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../../services/api';
 
 const AIChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -43,7 +43,7 @@ const AIChatWidget = () => {
                 content: msg.content
             }));
 
-            const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/ai/chat`, {
+            const response = await api.post('/ai/chat', {
                 message: userMessage,
                 history: history
             });
