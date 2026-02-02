@@ -55,7 +55,7 @@ const Dashboard = () => {
                     const leetcodeRes = await api.get('/leetcode/analytics');
                     analyticsData.leetcode = leetcodeRes.data.data;
                 } catch (lcErr) {
-                    console.log("LeetCode analytics not found or not linked");
+                    // LeetCode analytics not found or not linked
                 }
 
                 setAnalytics(analyticsData);
