@@ -186,8 +186,8 @@ const AIMockInterview = () => {
     // If selectedGender is male/female, try to use "safe" URLs or fallback to placeholders if they 404.
     // Since we know the previous URLs failed, we rely on custom here primarily, OR we put the "best guess" URLs back.
     const avatarUrl = (customUrl && selectedGender === 'custom') ? customUrl : (selectedGender === 'male'
-        ? 'https://models.readyplayer.me/679b884964648d88e04ccfa7.glb?morphTargets=ARKit&textureAtlas=1024'
-        : 'https://models.readyplayer.me/679b886c64648d88e04ccfaf.glb?morphTargets=ARKit&textureAtlas=1024');
+        ? 'https://models.readyplayer.me/658cd1105e197f2613fb2512.glb'
+        : 'https://models.readyplayer.me/658cd1405e197f2613fb2518.glb');
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-dark-bg p-6 md:p-8 transition-colors duration-300">
