@@ -27,7 +27,7 @@ export default defineConfig({
       },
     },
     // Increase chunk size warning limit
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 2000,
     // Enable CSS code splitting
     cssCodeSplit: true,
   },
