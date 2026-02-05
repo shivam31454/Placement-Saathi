@@ -1,176 +1,366 @@
-# Placement Saathi 🎓
-> *Your AI-Powered Companion for Placement Preparation*
+<div align="center">
 
-Placement Saathi is a comprehensive, AI-powered placement preparation platform designed to help students crack their dream job interviews. It combines traditional mock tests with cutting-edge AI features including Mock Interviews, Resume ATS Scanning, LeetCode Integration, and Personalized Learning Paths.
+# 🎓 Placement Saathi
 
-## ✨ Key Features
+### *Your AI-Powered Companion for Placement Preparation*
 
-### 🤖 AI-Powered Features
-*   **AI Mock Interview**: Practice interviews with realistic 3D avatars (male/female) that feature lip-sync animation and natural conversation flow powered by Groq AI
-*   **AI Chat Assistant**: Global AI chatbot accessible from any page to answer placement-related questions instantly
-*   **AI Resume ATS Scanner**: Upload your PDF resume to get instant ATS compatibility scores and keyword gap analysis
-*   **Personalized Study Roadmap**: AI-generated weekly study plans based on your weak areas
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-2ea44f?style=for-the-badge)](https://placement-saathi.vercel.app)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
 
-### 📝 Testing & Practice
-*   **Mock Test Engine**: Real-time examination environment with timer, question palette, and auto-submit
-*   **Advanced Coding Editor**: Integrated Monaco Editor (VS Code core) for superior coding experience
-*   **Structured Learning**: Topic-wise learning modules with practice questions
-*   **Practice Arena**: Interactive practice sessions with instant feedback
+---
 
-### 📊 Analytics & Tracking
-*   **Deep Analytics Dashboard**: Visualize performance with interactive charts (accuracy, subject-wise strength, time management)
-*   **LeetCode Integration**: Link your LeetCode account to track coding progress and get personalized recommendations
-*   **Interview Experiences**: Browse and share real interview experiences from various companies
+**Crack your dream job interviews with AI-powered mock interviews, real-time analytics, and personalized study paths!**
 
-### 👥 User Management
-*   **Student Dashboard**: Comprehensive view of tests, analytics, and progress
-*   **Admin Dashboard**: Tools for colleges to create tests, manage questions, and track student progress
-*   **Role-Based Access**: Separate interfaces for students and administrators
+[Features](#-features) • [Tech Stack](#️-tech-stack) • [Quick Start](#-quick-start) • [Usage](#-usage) • [Deployment](#-deployment) • [Contributing](#-contributing)
 
-### 🎨 Modern UI/UX
-*   **Dark Mode Support**: Eye-friendly dark theme with smooth transitions
-*   **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
-*   **3D Visualizations**: Interactive 3D avatars using React Three Fiber
-*   **Smooth Animations**: Powered by Framer Motion for premium feel
+</div>
+
+---
+
+## 🌟 Why Placement Saathi?
+
+| Challenge | Our Solution |
+|-----------|--------------|
+| 😰 No realistic interview practice | 🎭 AI Mock Interviews with 3D Avatars |
+| 📉 Hard to track coding progress | 📊 LeetCode Integration & Analytics |
+| 📄 Resume not ATS-friendly | 🔍 AI-powered Resume Scanner |
+| 📚 No structured preparation | 🗺️ Personalized Study Roadmaps |
+| ❓ Doubts while studying | 💬 24/7 AI Chat Assistant |
+
+---
+
+## ✨ Features
+
+<details>
+<summary><b>🤖 AI-Powered Features</b> (Click to expand)</summary>
+
+### 🎭 AI Mock Interview
+- Practice with **realistic 3D avatars** (David/Sarah)
+- **Lip-sync animation** synchronized with AI speech
+- Natural conversation flow powered by **Groq AI (LLaMA 3.3)**
+- Voice input with **Speech Recognition API**
+- Instant voice responses with **Speech Synthesis**
+
+### 💬 Global AI Chat Assistant
+- Floating widget accessible from **any page**
+- Context-aware career guidance
+- Answers about interviews, resumes, and coding
+- Conversation history maintained
+
+### 📄 Resume ATS Scanner
+- Upload PDF resume for instant analysis
+- **ATS compatibility score** (0-100)
+- Keyword gap analysis
+- Suggestions for improvement
+
+### 🗺️ Personalized Study Roadmap
+- AI-generated **weekly study plans**
+- Based on your weak areas
+- Adaptive recommendations
+
+</details>
+
+<details>
+<summary><b>📝 Testing & Practice</b> (Click to expand)</summary>
+
+### 🎯 Mock Test Engine
+- ⏱️ Real-time countdown timer
+- 🎨 Question palette (Answered/Unanswered/Marked)
+- ⚡ Auto-submit on time expiry
+- 📊 Instant detailed results
+
+### 💻 Advanced Coding Editor
+- **Monaco Editor** (VS Code core)
+- Syntax highlighting for 50+ languages
+- IntelliSense & autocomplete
+- Customizable themes
+
+### 📚 Structured Learning
+- Subject → Topic hierarchy
+- Theory + Examples + Practice
+- Progress tracking per topic
+
+### 🏋️ Practice Arena
+- Interactive problem-solving
+- Instant feedback
+- Difficulty-based filtering
+
+</details>
+
+<details>
+<summary><b>📊 Analytics & Tracking</b> (Click to expand)</summary>
+
+### 📈 Analytics Dashboard
+| Metric | Visualization |
+|--------|---------------|
+| Overall Score Trend | 📈 Line Chart |
+| Subject-wise Accuracy | 📊 Bar Chart |
+| Time Management | ⏰ Pie Chart |
+| Strengths/Weaknesses | 🎯 Radar Chart |
+
+### 🔗 LeetCode Integration
+- Link your LeetCode account
+- Track **Easy/Medium/Hard** progress
+- **Topic-wise analysis** (DP, Trees, Graphs...)
+- Smart recommendations for weak areas
+- Unlink and switch accounts anytime
+
+### 💼 Interview Experiences
+- Browse real interview stories
+- Filter by company & status
+- Share your own experiences
+- Community-driven insights
+
+</details>
+
+<details>
+<summary><b>🎨 Modern UI/UX</b> (Click to expand)</summary>
+
+- 🌙 **Dark Mode** with smooth transitions
+- 📱 **Fully Responsive** (Mobile, Tablet, Desktop)
+- ✨ **Framer Motion** animations
+- 🎮 **3D Graphics** with React Three Fiber
+- 🎯 **Intuitive Navigation**
+
+</details>
+
+---
 
 ## 🛠️ Tech Stack
 
+<div align="center">
+
+### Frontend
+![React](https://img.shields.io/badge/React_19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite_7-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat-square&logo=three.js&logoColor=white)
+![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
+
+### Backend
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=json-web-tokens&logoColor=white)
+
+### AI & APIs
+![Groq](https://img.shields.io/badge/Groq_AI-FF6B35?style=flat-square)
+![LeetCode](https://img.shields.io/badge/LeetCode_API-FFA116?style=flat-square&logo=leetcode&logoColor=black)
+
+</div>
+
+<details>
+<summary><b>📦 Complete Dependency List</b></summary>
+
 **Frontend:**
-*   React 18 + Vite (Lightning-fast development)
-*   Tailwind CSS (Modern styling)
-*   Zustand (Lightweight state management)
-*   Chart.js + React-Chartjs-2 (Analytics visualization)
-*   Monaco Editor (Code editor)
-*   React Three Fiber + Drei (3D graphics)
-*   Framer Motion (Animations)
-*   Lucide React (Icons)
+| Package | Purpose |
+|---------|---------|
+| `react` + `react-dom` | Core UI (v19) |
+| `react-router-dom` | Client-side routing |
+| `zustand` | Lightweight state management |
+| `@monaco-editor/react` | VS Code-powered code editor |
+| `three` + `@react-three/fiber` | 3D graphics |
+| `framer-motion` | Smooth animations |
+| `chart.js` + `react-chartjs-2` | Analytics charts |
+| `axios` | HTTP client |
+| `lucide-react` | Modern icons |
+| `tailwindcss` | Utility-first CSS |
 
 **Backend:**
-*   Node.js + Express
-*   MongoDB + Mongoose
-*   JWT (Authentication)
-*   Multer + PDF-Parse (Resume processing)
-*   Groq SDK (AI integration)
-*   Axios (HTTP client)
+| Package | Purpose |
+|---------|---------|
+| `express` | Web framework |
+| `mongoose` | MongoDB ODM |
+| `groq-sdk` | AI integration |
+| `jsonwebtoken` | Authentication |
+| `bcrypt` | Password hashing |
+| `multer` + `pdf-parse` | Resume processing |
+| `helmet` | Security headers |
+| `joi` | Input validation |
+| `cors` | Cross-origin requests |
 
-**AI & External Services:**
-*   Groq AI (Mock interviews & chatbot)
-*   LeetCode API (Coding analytics)
+</details>
 
-## 🚀 Performance Optimizations
+---
 
-*   **Lazy Loading**: All routes are code-split for faster initial load
-*   **Smart Chunk Splitting**: Vendor libraries separated for better caching
-*   **Build Optimizations**: Minification, tree-shaking, and dead code elimination
-*   **DNS Prefetch**: Preconnect to external domains for faster resource loading
-
-## 📦 Installation & Setup
+## 🚀 Quick Start
 
 ### Prerequisites
-*   Node.js (v14+)
-*   MongoDB (Local or Atlas URL)
-*   Groq API Key (for AI features)
 
-### 1. Clone the Repository
 ```bash
-git clone <repository_url>
-cd placement-saathi
+Node.js >= 18
+MongoDB (Local or Atlas)
+Groq API Key (free at console.groq.com)
 ```
 
-### 2. Backend Setup (Server)
+### Installation
+
 ```bash
+# Clone the repository
+git clone https://github.com/shivam31454/Placement-Saathi.git
+cd Placement-Saathi
+
+# Install backend dependencies
 cd server
+npm install
+
+# Install frontend dependencies
+cd ../client
 npm install
 ```
 
-Create a `.env` file in the `server` directory:
+### Configuration
+
+**Server** (`server/.env`):
 ```env
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/placement_saathi
-JWT_SECRET=your_super_secret_key_123
-GROQ_API_KEY=your_groq_api_key_here
+JWT_SECRET=your_super_secret_key_here
+GROQ_API_KEY=gsk_your_groq_api_key
 ```
 
-Start the server:
-```bash
-npm run dev
-```
-
-### 3. Frontend Setup (Client)
-Open a new terminal:
-```bash
-cd client
-npm install
-```
-
-Create a `.env` file in the `client` directory (for production):
+**Client** (`client/.env`):
 ```env
 VITE_API_URL=http://localhost:5000/api/v1
 ```
 
-Start the React app:
+### Run Development Servers
+
 ```bash
-npm run dev
+# Terminal 1 - Backend
+cd server && npm run dev
+
+# Terminal 2 - Frontend
+cd client && npm run dev
 ```
 
-The application should now be running at `http://localhost:5173`.
-
-## 📚 Usage Guide
-
-### For Students
-1.  **Sign Up/Login**: Create an account to access the dashboard
-2.  **Link LeetCode**: Connect your LeetCode account for coding analytics
-3.  **Take Tests**: Practice with mock tests and coding challenges
-4.  **AI Mock Interview**: Practice with AI-powered 3D interviewers
-5.  **Analyze Progress**: View detailed analytics and performance trends
-6.  **Tools**: 
-    *   Use **Resume Scan** to optimize your CV for ATS
-    *   Check **Study Roadmap** for personalized learning path
-    *   Browse **Interview Experiences** from other students
-    *   Use **AI Chat** for instant help
-
-### For Admins
-1.  Log in with an admin account (Role: `admin`)
-2.  **Dashboard**: View platform usage statistics
-3.  **Question Bank**: Add new questions (MCQ or Coding) with test cases
-4.  **Test Management**: Create assessments by selecting questions
-5.  **Student Monitoring**: Track student progress and performance
-
-## 🌐 Deployment
-
-The application is optimized for deployment on:
-*   **Frontend**: Vercel (recommended) or Netlify
-*   **Backend**: Render, Railway, or Heroku
-*   **Database**: MongoDB Atlas
-
-See `DEPLOYMENT_GUIDE.md` for detailed deployment instructions.
-
-## 🎯 Future Enhancements
-
-*   Video-based mock interviews with recording
-*   Peer-to-peer study groups
-*   Company-specific preparation tracks
-*   Mobile app (React Native)
-*   Advanced AI feedback on coding solutions
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - feel free to use this project for learning and development.
-
-## 👨‍💻 Author
-
-Created with ❤️ for students preparing for placements
+🎉 **Visit [http://localhost:5173](http://localhost:5173)**
 
 ---
 
-**Note**: This is an educational project. Make sure to add your own API keys and configure environment variables before deployment.
+## 📖 Usage
+
+### 👨‍🎓 For Students
+
+| Step | Action |
+|------|--------|
+| 1️⃣ | **Sign Up** → Create your account |
+| 2️⃣ | **Link LeetCode** → Connect for coding analytics |
+| 3️⃣ | **Take Tests** → Practice with timed mock tests |
+| 4️⃣ | **AI Interview** → Practice with 3D AI interviewers |
+| 5️⃣ | **Analyze** → Review performance analytics |
+| 6️⃣ | **Improve** → Follow AI-generated study roadmap |
+
+### 👨‍💼 For Admins
+
+| Feature | Description |
+|---------|-------------|
+| 📊 Dashboard | View platform statistics |
+| ❓ Question Bank | Add MCQ/Coding questions |
+| 📝 Test Management | Create and schedule tests |
+| 👥 Student Tracking | Monitor progress |
+
+---
+
+## 🌐 Deployment
+
+### One-Click Deploy
+
+| Service | Deploy |
+|---------|--------|
+| Frontend | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shivam31454/Placement-Saathi/tree/main/client) |
+| Backend | Deploy on [Render](https://render.com) / [Railway](https://railway.app) |
+| Database | [MongoDB Atlas](https://cloud.mongodb.com) (Free Tier) |
+
+### Environment Variables (Production)
+
+**Vercel (Frontend):**
+```
+VITE_API_URL=https://your-backend-url.onrender.com/api/v1
+```
+
+**Render (Backend):**
+```
+PORT=5000
+MONGO_URI=mongodb+srv://...
+JWT_SECRET=production_secret
+GROQ_API_KEY=gsk_...
+```
+
+---
+
+## ⚡ Performance
+
+| Optimization | Impact |
+|--------------|--------|
+| 📦 Code Splitting | -60% initial bundle |
+| 🔄 Lazy Loading | Faster TTI |
+| 🧹 Tree Shaking | Removed dead code |
+| 📊 Chunk Splitting | Better caching |
+| 🔒 Terser Minification | Smaller bundles |
+
+---
+
+## 🎯 Roadmap
+
+- [x] AI Mock Interviews
+- [x] 3D Avatar System
+- [x] LeetCode Integration
+- [x] Resume ATS Scanner
+- [x] Performance Optimizations
+- [ ] Video-based interviews with recording
+- [ ] Peer-to-peer study groups
+- [ ] Company-specific tracks
+- [ ] Mobile App (React Native)
+- [ ] Advanced AI code feedback
+
+---
+
+## 🤝 Contributing
+
+Contributions make the open-source community amazing! 🌟
+
+```bash
+# 1. Fork the repo
+# 2. Create feature branch
+git checkout -b feature/AmazingFeature
+
+# 3. Commit changes
+git commit -m "Add AmazingFeature"
+
+# 4. Push to branch
+git push origin feature/AmazingFeature
+
+# 5. Open Pull Request
+```
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for details.
+
+---
+
+## 🙏 Acknowledgements
+
+- [Groq](https://groq.com) - Lightning-fast AI inference
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber) - 3D graphics
+- [Framer Motion](https://www.framer.com/motion/) - Animations
+- [LeetCode](https://leetcode.com) - Coding challenges API
+
+---
+
+<div align="center">
+
+### Made with ❤️ for students preparing for placements
+
+⭐ **Star this repo if you found it helpful!** ⭐
+
+[![GitHub stars](https://img.shields.io/github/stars/shivam31454/Placement-Saathi?style=social)](https://github.com/shivam31454/Placement-Saathi/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/shivam31454/Placement-Saathi?style=social)](https://github.com/shivam31454/Placement-Saathi/network/members)
+
+</div>

@@ -31,3 +31,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Personal Documentation (not for GitHub)
+PROJECT_REPORT.md
+INTERVIEW_PREPARATION.md
