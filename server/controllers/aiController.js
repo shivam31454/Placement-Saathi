@@ -119,5 +119,44 @@ const generateChatResponse = async (req, res) => {
     }
 };
 
-module.exports = { generateInterviewResponse, generateChatResponse };
+const generateInsights = async (req, res) => {
+    try {
+        const { testPerformance, leetCodeStats } = req.body;
+
+        const systemPrompt = {
+            role: "system",
+            content: `You are an expert personalized tutor for coding interviews. 
+            Analyze the student's performance data.
+            Output format: A JSON object with two fields:
+            1. "short_summary": 1-2 sentences highlighting strengths and main weakness.
+            2. "action_item": A concrete step to improve (e.g., "Practice 5 Hard DP problems").`
+        };
+
+        const userMessage = {
+            role: "user",
+            content: `Data:
+            Test History: ${JSON.stringify(testPerformance)}
+            LeetCode Stats: ${JSON.stringify(leetCodeStats)}
+            
+            Provide insights.`
+        };
+
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [systemPrompt, userMessage],
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.6,
+            max_tokens: 150,
+            response_format: { type: "json_object" }
+        });
+
+        const result = JSON.parse(chatCompletion.choices[0]?.message?.content || "{}");
+        res.json({ success: true, ...result });
+
+    } catch (error) {
+        console.error("Error generating insights:", error);
+        res.status(500).json({ success: false, error: "Failed to generate insights" });
+    }
+};
+
+module.exports = { generateInterviewResponse, generateChatResponse, generateInsights };
 

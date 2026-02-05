@@ -8,4 +8,8 @@ router.post('/interview', generateInterviewResponse);
 // Route for Global Chat
 router.post('/chat', require('../controllers/aiController').generateChatResponse);
 
+// Route for Dashboard Insights
+router.post('/insights', require('../controllers/aiController').generateInsights);
+
+
 module.exports = router;

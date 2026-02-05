@@ -5,12 +5,11 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 const variants = {
-    primary: 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 border border-transparent',
-    secondary: 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700',
-    outline: 'bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800',
-    ghost: 'bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800',
-    danger: 'bg-red-500 text-white shadow-lg shadow-red-500/25 hover:bg-red-600 hover:shadow-red-500/40',
-    glass: 'glass-button', // Uses the utility class we defined
+    primary: 'bg-primary-600 text-white shadow-lg hover:bg-primary-700 btn-hover-effect glass-button',
+    secondary: 'bg-secondary-600 text-white shadow-lg hover:bg-secondary-700 btn-hover-effect',
+    outline: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/10 btn-hover-effect',
+    ghost: 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 btn-hover-effect',
+    danger: 'bg-red-500 text-white hover:bg-red-600 shadow-md btn-hover-effect',
 };
 
 const sizes = {

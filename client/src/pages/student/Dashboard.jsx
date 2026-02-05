@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
 import useAuthStore from '../../store/useAuthStore';
-import { Play, Clock, FileText, TrendingUp, Award, Activity, Map, Search, Bell, BarChart2, Briefcase, Bot, Sparkles, BookOpen } from 'lucide-react';
+import Button from '../../components/ui/Button';
+import { Play, Clock, FileText, TrendingUp, Award, Activity, Map, Search, Bell, BarChart2, Briefcase, Bot, Sparkles, BookOpen, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
     Chart as ChartJS,
@@ -15,10 +16,9 @@ import {
     BarElement,
     Filler
 } from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import { motion } from 'framer-motion';
+import { Line } from 'react-chartjs-2';
+import { motion, AnimatePresence } from 'framer-motion';
+import OnboardingTour from '../../components/guide/OnboardingTour';
 
 ChartJS.register(
     CategoryScale,
@@ -38,8 +38,17 @@ const Dashboard = () => {
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
     const [graphType, setGraphType] = useState('tests'); // 'tests' or 'leetcode'
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [insights, setInsights] = useState(null);
 
     useEffect(() => {
+        // Check for onboarding
+        const hasSeenOnboarding = localStorage.getItem('onboarding_completed');
+        if (!hasSeenOnboarding) {
+            // Small delay to ensure render is complete
+            setTimeout(() => setShowOnboarding(true), 1000);
+        }
+
         const fetchData = async () => {
             try {
                 // Fetch recommended tests
@@ -54,11 +63,28 @@ const Dashboard = () => {
                 try {
                     const leetcodeRes = await api.get('/leetcode/analytics');
                     analyticsData.leetcode = leetcodeRes.data.data;
-                } catch (lcErr) {
-                    // LeetCode analytics not found or not linked
-                }
+                } catch (lcErr) { /* Ignore */ }
 
                 setAnalytics(analyticsData);
+
+                // Fetch AI Insights
+                try {
+                    const insightsRes = await api.post('/ai/insights', {
+                        testPerformance: analyticsData.history || [],
+                        leetCodeStats: analyticsData.leetcode || {}
+                    });
+                    if (insightsRes.data.success) {
+                        setInsights(insightsRes.data);
+                    }
+                } catch (aiErr) {
+                    console.error("Failed to fetch AI insights", aiErr);
+                    // Fallback static insights if API fails
+                    setInsights({
+                        short_summary: "Keep practicing! We're analyzing your data to provide better tips.",
+                        action_item: "Try taking a Mock Test to get more data points."
+                    });
+                }
+
             } catch (err) {
                 console.error("Error fetching dashboard data", err);
             } finally {
@@ -104,23 +130,6 @@ const Dashboard = () => {
         ],
     };
 
-    const subjectData = {
-        labels: analytics?.subjectAnalysis?.map(s => s.subject) || [],
-        datasets: [
-            {
-                label: 'Subject Proficiency (%)',
-                data: analytics?.subjectAnalysis?.map(s => s.accuracy) || [],
-                backgroundColor: [
-                    'rgba(236, 72, 153, 0.8)',
-                    'rgba(99, 102, 241, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                ],
-                borderRadius: 8,
-            },
-        ],
-    };
-
     const chartOptions = {
         responsive: true,
         plugins: {
@@ -151,6 +160,21 @@ const Dashboard = () => {
         },
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+    };
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-dark-bg">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -159,10 +183,16 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-900 dark:text-gray-100 transition-colors duration-300">
+            {showOnboarding && <OnboardingTour onComplete={() => setShowOnboarding(false)} />}
             {/* Navbar */}
             <nav className="glass-panel border-x-0 border-t-0 sticky top-0 z-50 px-6 py-4 flex justify-between items-center rounded-none">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-gradient-to-tr from-primary-600 to-primary-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30">P</div>
+                    <motion.div
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        className="w-9 h-9 bg-gradient-to-tr from-primary-600 to-primary-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/30 cursor-pointer"
+                    >
+                        P
+                    </motion.div>
                     <span className="font-bold text-xl text-slate-900 dark:text-white tracking-tight">Placement Saathi</span>
                 </div>
                 <div className="flex items-center gap-6">
@@ -185,17 +215,27 @@ const Dashboard = () => {
                 </div>
             </nav>
 
-            <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
+            <motion.div
+                className="max-w-7xl mx-auto p-6 md:p-8 space-y-8"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
                 {/* Greeting & LeetCode Connect */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                >
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">Track your progress and practice to improve.</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">
+                            Hello, {user?.name?.split(' ')[0] || 'Student'}! 👋
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1">Here's your progress overview for today.</p>
                     </div>
 
                     <div className="flex gap-2 items-center">
                         {analytics?.leetcode?.username ? (
-                            <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center gap-3 glass-panel px-4 py-2 rounded-xl">
                                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
                                     Connected: <span className="text-primary-600 font-bold">{analytics.leetcode.username}</span>
                                 </span>
@@ -216,7 +256,7 @@ const Dashboard = () => {
                                     type="text"
                                     placeholder="LeetCode Username"
                                     id="lc-username"
-                                    className="px-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary-500/50"
+                                    className="px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary-500/50"
                                 />
                                 <Button onClick={async () => {
                                     const username = document.getElementById('lc-username').value;
@@ -229,10 +269,40 @@ const Dashboard = () => {
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
+
+                {/* AI Insights Widget */}
+                <motion.div variants={itemVariants} className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-[1px]">
+                    <div className="bg-white dark:bg-slate-900 rounded-[15px] p-6 h-full backdrop-blur-3xl bg-opacity-90 dark:bg-opacity-90 relative overflow-hidden">
+                        {/* Shimmer effect if loading insights (optional, but insights might come later) */}
+                        <div className="flex items-start gap-4 relative z-10">
+                            <div className="p-3 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                                <Lightbulb className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                                    AI Performance Insights <span className="text-[10px] bg-primary-500 text-white px-1.5 py-0.5 rounded-full">BETA</span>
+                                </h3>
+                                {insights ? (
+                                    <div className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                                        <p>{insights.short_summary}</p>
+                                        <p className="font-semibold text-primary-600 dark:text-primary-400">
+                                            💡 Recommendation: {insights.action_item}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="animate-pulse space-y-2 w-full">
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
 
                 {/* Hero Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
                         icon={Activity}
                         label="Tests Taken"
@@ -240,9 +310,9 @@ const Dashboard = () => {
                         color="text-primary-600"
                         bg="bg-primary-50 dark:bg-primary-900/20"
                     />
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="glass-card bg-white dark:bg-slate-800 p-6 rounded-2xl flex flex-col justify-between group">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600">
+                            <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 group-hover:scale-110 transition-transform">
                                 <TrendingUp className="w-6 h-6" />
                             </div>
                             <div>
@@ -276,55 +346,102 @@ const Dashboard = () => {
                     />
 
                     <motion.div
-                        whileHover={{ y: -5 }}
-                        className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-2xl p-6 shadow-xl shadow-primary-500/20 text-white relative overflow-hidden group"
+                        whileHover={{ y: -5, scale: 1.02 }}
+                        className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-2xl p-6 shadow-xl shadow-primary-500/20 text-white relative overflow-hidden group cursor-pointer"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500 rotate-12 group-hover:rotate-45">
                             <Award className="w-24 h-24" />
                         </div>
-                        <p className="text-indigo-100 text-sm font-medium mb-1">Your Rank</p>
-                        <h3 className="text-3xl font-bold mb-2">Top 10%</h3>
-                        <div className="w-full bg-white/20 rounded-full h-1.5 mb-2">
-                            <div className="bg-white h-1.5 rounded-full w-[90%]"></div>
+                        <p className="text-indigo-100 text-sm font-medium mb-1 relative z-10">Your Rank</p>
+                        <h3 className="text-3xl font-bold mb-2 relative z-10">Top 10%</h3>
+                        <div className="w-full bg-white/20 rounded-full h-1.5 mb-2 relative z-10">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: "90%" }}
+                                transition={{ duration: 1, delay: 0.5 }}
+                                className="bg-white h-1.5 rounded-full"
+                            ></motion.div>
                         </div>
-                        <p className="text-xs text-indigo-100/80">You're doing great! Keep it up.</p>
+                        <p className="text-xs text-indigo-100/80 relative z-10">You're doing great! Keep it up.</p>
                     </motion.div>
-                </div>
+                </motion.div>
+
+                {/* Quick Actions */}
+                <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <QuickActionCard
+                        to="/scan-resume"
+                        icon={FileText}
+                        title="ATS Resume Scanner"
+                        desc="Check your resume score."
+                        color="text-blue-600"
+                        bg="bg-blue-50 dark:bg-blue-900/20"
+                        gradient="from-blue-500/10 to-blue-600/5 dark:from-blue-900/20 dark:to-blue-800/10"
+                    />
+                    <QuickActionCard
+                        to="/roadmap"
+                        icon={Map}
+                        title="Study Roadmap"
+                        desc="Your personalized plan."
+                        color="text-purple-600"
+                        bg="bg-purple-50 dark:bg-purple-900/20"
+                        gradient="from-purple-500/10 to-purple-600/5 dark:from-purple-900/20 dark:to-purple-800/10"
+                    />
+                    <QuickActionCard
+                        to="/mock-interview"
+                        icon={Bot}
+                        title="AI Mock Interview"
+                        desc="Practice with AI voice."
+                        color="text-emerald-600"
+                        bg="bg-emerald-50 dark:bg-emerald-900/20"
+                        gradient="from-emerald-500/10 to-emerald-600/5 dark:from-emerald-900/20 dark:to-emerald-800/10"
+                    />
+                    <QuickActionCard
+                        to="/learning"
+                        icon={BookOpen}
+                        title="Structured Learning"
+                        desc="Master CS subjects."
+                        color="text-teal-600"
+                        bg="bg-teal-50 dark:bg-teal-900/20"
+                        gradient="from-teal-500/10 to-teal-600/5 dark:from-teal-900/20 dark:to-teal-800/10"
+                    />
+                </motion.div>
 
                 {/* LeetCode Analysis Section */}
                 {analytics?.leetcode && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <Card className="p-6">
+                    <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="glass-card p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50">
                             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-primary-500" />
                                 Topic Strength Analysis
                             </h3>
-                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                 {analytics.leetcode.analyzedTags.map((tag, idx) => (
                                     <div key={idx} className="flex items-center gap-4">
                                         <div className="w-24 text-sm font-medium truncate" title={tag.tagName}>{tag.tagName}</div>
                                         <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                                            <div
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${tag.score * 10}%` }}
+                                                transition={{ duration: 1, delay: 0.2 + idx * 0.05 }}
                                                 className={`h-full rounded-full ${tag.status === 'Strong' ? 'bg-green-500' :
                                                     tag.status === 'Average' ? 'bg-yellow-500' : 'bg-red-500'
                                                     }`}
-                                                style={{ width: `${tag.score * 10}%` }}
-                                            ></div>
+                                            ></motion.div>
                                         </div>
                                         <div className="w-12 text-xs font-bold text-right">{tag.score}/10</div>
                                     </div>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
 
                         {/* Question Recommendations */}
-                        <Card className="p-6">
+                        <div className="glass-card p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50">
                             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                 <Bot className="w-5 h-5 text-indigo-500" />
                                 Recommended Practice
                             </h3>
                             {analytics.leetcode.recommendations?.length > 0 ? (
-                                <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2">
+                                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                                     {analytics.leetcode.recommendations.map((rec, i) => (
                                         <div key={i}>
                                             <p className="text-xs font-bold text-slate-500 uppercase mb-2">
@@ -337,7 +454,7 @@ const Dashboard = () => {
                                                         href={`https://leetcode.com/problems/${prob.titleSlug}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="block p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-slate-100 dark:border-slate-700 group"
+                                                        className="block p-3 bg-white dark:bg-slate-900 rounded-lg hover:shadow-md transition-all border border-slate-100 dark:border-slate-800 group"
                                                     >
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-sm font-medium group-hover:text-primary-600 transition-colors">{prob.title}</span>
@@ -357,77 +474,28 @@ const Dashboard = () => {
                                     <p>Great job! No weak topics detected.</p>
                                 </div>
                             )}
-                        </Card>
-                    </div>
+                        </div>
+                    </motion.div>
                 )}
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <QuickActionCard
-                        to="/scan-resume"
-                        icon={FileText}
-                        title="ATS Resume Scanner"
-                        desc="Check your resume score and get improvement tips."
-                        color="text-blue-600"
-                        bg="bg-blue-50 dark:bg-blue-900/20"
-                        gradient="from-blue-500/10 to-blue-600/5 dark:from-blue-900/20 dark:to-blue-800/10"
-                    />
-                    <QuickActionCard
-                        to="/roadmap"
-                        icon={Map}
-                        title="Study Roadmap"
-                        desc="View your personalized week-by-week study plan."
-                        color="text-purple-600"
-                        bg="bg-purple-50 dark:bg-purple-900/20"
-                        gradient="from-purple-500/10 to-purple-600/5 dark:from-purple-900/20 dark:to-purple-800/10"
-                    />
-                    <QuickActionCard
-                        to="/experiences"
-                        icon={Briefcase}
-                        title="Interview Stories"
-                        desc="Read real interview experiences from seniors."
-                        color="text-amber-600"
-                        bg="bg-amber-50 dark:bg-amber-900/20"
-                        gradient="from-amber-500/10 to-amber-600/5 dark:from-amber-900/20 dark:to-amber-800/10"
-                    />
-                    <QuickActionCard
-                        to="/mock-interview"
-                        icon={Bot}
-                        title="AI Mock Interview"
-                        desc="Practice with our AI voice assistant."
-                        color="text-emerald-600"
-                        bg="bg-emerald-50 dark:bg-emerald-900/20"
-                        gradient="from-emerald-500/10 to-emerald-600/5 dark:from-emerald-900/20 dark:to-emerald-800/10"
-                    />
-                    <QuickActionCard
-                        to="/learning"
-                        icon={BookOpen}
-                        title="Structured Learning"
-                        desc="Master CS subjects with notes and quizzes."
-                        color="text-teal-600"
-                        bg="bg-teal-50 dark:bg-teal-900/20"
-                        gradient="from-teal-500/10 to-teal-600/5 dark:from-teal-900/20 dark:to-teal-800/10"
-                    />
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Charts Section */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Performance Chart */}
-                        <Card className="p-6">
+                        <div className="glass-card p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="font-bold text-slate-800 dark:text-white">Performance History</h3>
-                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                                <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
                                     <button
                                         onClick={() => setGraphType('tests')}
-                                        className={`text-xs px-3 py-1.5 rounded-md font-medium transition-colors ${graphType === 'tests' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${graphType === 'tests' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
                                     >
                                         Tests
                                     </button>
                                     <button
                                         onClick={() => setGraphType('leetcode')}
                                         disabled={!analytics?.leetcode}
-                                        className={`text-xs px-3 py-1.5 rounded-md font-medium transition-colors ${graphType === 'leetcode' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} ${!analytics?.leetcode && 'opacity-50 cursor-not-allowed'}`}
+                                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${graphType === 'leetcode' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} ${!analytics?.leetcode && 'opacity-50 cursor-not-allowed'}`}
                                     >
                                         LeetCode
                                     </button>
@@ -444,7 +512,7 @@ const Dashboard = () => {
                                     <p>No data available for this view</p>
                                 </div>
                             )}
-                        </Card>
+                        </div>
                     </div>
 
                     {/* Sidebar: Recommended Tests */}
@@ -455,7 +523,7 @@ const Dashboard = () => {
                         </div>
                         <div className="space-y-4">
                             {tests.slice(0, 3).map(test => (
-                                <Card key={test._id} hover className="p-5 border-l-4 border-l-primary-500 group cursor-pointer">
+                                <div key={test._id} className="glass-card p-5 rounded-2xl border-l-4 border-l-primary-500 group cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">
                                     <div className="flex justify-between items-start mb-2">
                                         <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase ${test.difficulty === 'Easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                                             test.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
@@ -474,31 +542,34 @@ const Dashboard = () => {
                                             Start Test
                                         </Button>
                                     </Link>
-                                </Card>
+                                </div>
                             ))}
                         </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };
 
 const StatCard = ({ icon: Icon, label, value, color, bg }) => (
-    <Card hover className="p-6 flex items-center gap-4">
-        <div className={`p-3 rounded-xl ${bg} ${color}`}>
+    <div className="glass-card bg-white dark:bg-slate-800 p-6 rounded-2xl flex items-center gap-4 group">
+        <div className={`p-3 rounded-xl ${bg} ${color} group-hover:scale-110 transition-transform`}>
             <Icon className="w-6 h-6" />
         </div>
         <div>
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{label}</p>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{value}</h3>
         </div>
-    </Card>
+    </div>
 );
 
 const QuickActionCard = ({ to, icon: Icon, title, desc, color, bg, gradient }) => (
     <Link to={to}>
-        <Card hover className={`p-6 relative overflow-hidden group h-full flex items-center gap-5`}>
+        <motion.div
+            whileHover={{ y: -5, scale: 1.02 }}
+            className={`glass-card bg-white dark:bg-slate-800 p-6 rounded-2xl relative overflow-hidden group h-full flex items-center gap-5`}
+        >
             {/* Background Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
 
@@ -514,7 +585,7 @@ const QuickActionCard = ({ to, icon: Icon, title, desc, color, bg, gradient }) =
                     <Play className="w-4 h-4 text-slate-400 group-hover:text-primary-600" />
                 </div>
             </div>
-        </Card>
+        </motion.div>
     </Link>
 );
 

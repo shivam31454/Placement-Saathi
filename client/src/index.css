@@ -6,26 +6,76 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-[#0f172a] dark:text-gray-100 transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 dark:bg-[#0f172a] dark:text-gray-100 transition-colors duration-300 antialiased;
   }
 }
 
 @layer components {
+  /* Enhanced Glassmorphism */
   .glass-panel {
-    @apply bg-white/70 dark:bg-slate-800/50 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-xl;
+    @apply bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 shadow-xl ring-1 ring-black/5 dark:ring-white/10;
   }
 
+  .glass-card {
+    @apply bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/30 dark:border-slate-700/30 shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  /* Buttons */
   .glass-button {
     @apply relative overflow-hidden text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-primary-500/30 active:scale-95;
     background-color: theme('colors.primary.600');
   }
 
+  .btn-hover-effect {
+    @apply transition-transform active:scale-95 hover:-translate-y-0.5;
+  }
+
+  /* Text Gradients */
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-500;
   }
+
+  /* Animations */
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.1); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes gradient-x {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 15s ease infinite;
+  }
 }
 
-/* Custom Scrollbar - Sleek & Minimal */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

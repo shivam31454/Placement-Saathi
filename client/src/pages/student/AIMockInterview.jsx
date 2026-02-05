@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
-import { Mic, MicOff, Send, Play, Square, Bot, User, Volume2, AlertCircle } from 'lucide-react';
+import { Mic, MicOff, Send, Play, Square, Bot, User, Volume2, AlertCircle, Video, Download, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { Canvas } from '@react-three/fiber';
@@ -20,9 +20,18 @@ const AIMockInterview = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [selectedGender, setSelectedGender] = useState(null); // 'male' or 'female'
 
+    // Recording State
+    const [isRecording, setIsRecording] = useState(false);
+    const [videoBlob, setVideoBlob] = useState(null);
+    const [showPlayback, setShowPlayback] = useState(false);
+    const [permissionError, setPermissionError] = useState(null);
+
     const chatEndRef = useRef(null);
     const recognitionRef = useRef(null);
     const synthRef = useRef(window.speechSynthesis);
+    const mediaRecorderRef = useRef(null);
+    const recordedChunksRef = useRef([]);
+    const streamRef = useRef(null);
 
     useEffect(() => {
         // Initialize Speech Recognition
@@ -45,12 +54,7 @@ const AIMockInterview = () => {
             recognitionRef.current.onerror = (event) => {
                 console.error("Speech recognition error", event.error);
                 if (event.error === 'not-allowed') {
-                    setMicError('Microphone permission denied. Please allow access.');
-                    setIsListening(false);
-                } else if (event.error === 'no-speech') {
-                    // Ignore
-                } else {
-                    setMicError(`Error: ${event.error}`);
+                    setMicError('Microphone permission denied.');
                     setIsListening(false);
                 }
             };
@@ -59,14 +63,55 @@ const AIMockInterview = () => {
         }
 
         return () => {
-            if (recognitionRef.current) {
-                try { recognitionRef.current.stop(); } catch (e) { }
-            }
-            if (synthRef.current) {
-                synthRef.current.cancel();
-            }
+            stopMediaStream();
+            if (recognitionRef.current) try { recognitionRef.current.stop(); } catch (e) { }
+            if (synthRef.current) synthRef.current.cancel();
         };
     }, []);
+
+    const stopMediaStream = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+        }
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            streamRef.current = stream;
+
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            recordedChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+                setVideoBlob(blob);
+                setShowPlayback(true);
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+            setPermissionError(null);
+        } catch (err) {
+            console.error("Error accessing media devices:", err);
+            setPermissionError("Camera/Microphone access denied. Recording disabled.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            stopMediaStream();
+        }
+    };
 
     // Simulate audio visualizer for fallback
     useEffect(() => {
@@ -111,10 +156,20 @@ const AIMockInterview = () => {
 
     const startInterview = async () => {
         setIsStarted(true);
+        // Start Recording automatically if desired, or let user prompt
+        startRecording();
+
         // Initial greeting
         const greeting = "Hello! I'm your AI Interviewer. I'm ready when you are. Please introduce yourself.";
         addMessage('ai', greeting);
         speak(greeting);
+    };
+
+    const endInterview = () => {
+        setIsStarted(false);
+        stopRecording();
+        setSelectedGender(null);
+        if (synthRef.current) synthRef.current.cancel();
     };
 
     const addMessage = (sender, text) => {
@@ -190,12 +245,18 @@ const AIMockInterview = () => {
                             <Bot className="w-8 h-8 text-primary-600" /> AI Mock Interviewer
                         </h1>
                     </div>
-                    {isListening && (
+                    {isRecording && (
                         <div className="flex items-center gap-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full text-xs font-bold animate-pulse">
-                            <div className="w-2 h-2 bg-red-600 rounded-full"></div> Listening
+                            <div className="w-2 h-2 bg-red-600 rounded-full"></div> Recording ON
                         </div>
                     )}
                 </div>
+
+                {permissionError && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm font-medium border border-red-200">
+                        {permissionError}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
                     {/* Left Panel: AI Avatar / Selection */}
@@ -236,7 +297,7 @@ const AIMockInterview = () => {
                                 </div>
                                 <h2 className="text-3xl font-bold mb-4 drop-shadow-md">Ready to Practice?</h2>
                                 <p className="text-slate-200 mb-8 max-w-md drop-shadow-md font-medium">
-                                    I will simulate a real interview using advanced AI.
+                                    I will simulate a real interview using advanced AI. Your session will be recorded for self-review.
                                 </p>
                                 <Button size="lg" onClick={startInterview} className="px-8 py-4 text-lg shadow-xl">
                                     <Play className="w-5 h-5 mr-2" /> Start Interview
@@ -271,11 +332,7 @@ const AIMockInterview = () => {
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Live Transcript</span>
                             {isStarted && (
                                 <button
-                                    onClick={() => {
-                                        setIsStarted(false);
-                                        setSelectedGender(null);
-                                        if (synthRef.current) synthRef.current.cancel();
-                                    }}
+                                    onClick={endInterview}
                                     className="text-xs text-red-500 hover:text-red-600 font-medium"
                                 >
                                     End Session
@@ -345,6 +402,56 @@ const AIMockInterview = () => {
                     </Card>
                 </div>
             </div >
+
+            {/* Playback Modal */}
+            <AnimatePresence>
+                {showPlayback && videoBlob && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-700"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                                    <Video className="w-6 h-6 text-primary-500" /> Session Playback
+                                </h3>
+                                <button onClick={() => setShowPlayback(false)} className="text-slate-400 hover:text-white">
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="aspect-video bg-black rounded-xl overflow-hidden mb-6">
+                                <video
+                                    src={URL.createObjectURL(videoBlob)}
+                                    controls
+                                    className="w-full h-full"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-4">
+                                <Button variant="ghost" onClick={() => setShowPlayback(false)}>
+                                    Close
+                                </Button>
+                                <a
+                                    href={URL.createObjectURL(videoBlob)}
+                                    download={`interview-session-${new Date().toISOString()}.webm`}
+                                >
+                                    <Button variant="primary">
+                                        <Download className="w-4 h-4 mr-2" /> Download Recording
+                                    </Button>
+                                </a>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div >
     );
 };
