@@ -94,20 +94,33 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    // Prepare Chart Data
+    // Prepare Chart Data with enhanced styling
     const performanceData = graphType === 'tests' ? {
         labels: analytics?.history?.map((h, i) => `Test ${i + 1}`) || [],
         datasets: [
             {
                 label: 'Accuracy (%)',
                 data: analytics?.history?.map(h => h.accuracy) || [],
-                borderColor: '#6366f1',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderColor: '#8b5cf6',
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradient.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
+                    gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.15)');
+                    gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+                    return gradient;
+                },
                 tension: 0.4,
                 fill: true,
                 pointBackgroundColor: '#fff',
-                pointBorderColor: '#6366f1',
-                pointBorderWidth: 2,
+                pointBorderColor: '#8b5cf6',
+                pointBorderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointHoverBackgroundColor: '#8b5cf6',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3,
+                borderWidth: 3,
             },
         ],
     } : {
@@ -120,37 +133,119 @@ const Dashboard = () => {
                 label: 'Problems Solved',
                 data: analytics?.leetcode?.submissionHistory?.map(h => h.count) || [],
                 borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+                    gradient.addColorStop(0.5, 'rgba(16, 185, 129, 0.15)');
+                    gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+                    return gradient;
+                },
                 tension: 0.4,
                 fill: true,
                 pointBackgroundColor: '#fff',
                 pointBorderColor: '#10b981',
-                pointBorderWidth: 2,
+                pointBorderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointHoverBackgroundColor: '#10b981',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3,
+                borderWidth: 3,
             },
         ],
     };
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                titleColor: '#fff',
+                bodyColor: '#e2e8f0',
+                titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 13 },
+                padding: 14,
+                cornerRadius: 12,
+                displayColors: false,
+                callbacks: {
+                    title: (items) => graphType === 'tests' ? `📊 ${items[0].label}` : `📅 ${items[0].label}`,
+                    label: (context) => {
+                        const value = context.parsed.y;
+                        if (graphType === 'tests') {
+                            return `Accuracy: ${value}%`;
+                        }
+                        return `Problems Solved: ${value}`;
+                    },
+                    afterLabel: (context) => {
+                        const value = context.parsed.y;
+                        if (graphType === 'tests') {
+                            if (value >= 80) return '🔥 Excellent Performance!';
+                            if (value >= 60) return '✨ Good Progress!';
+                            return '💪 Keep Practicing!';
+                        }
+                        return '';
+                    }
+                }
+            },
+        },
+        animation: {
+            duration: 1000,
+            easing: 'easeOutQuart',
         },
         scales: {
             y: {
                 beginAtZero: true,
+                max: graphType === 'tests' ? 100 : undefined,
                 grid: {
-                    color: 'rgba(148, 163, 184, 0.1)',
+                    color: 'rgba(148, 163, 184, 0.08)',
+                    drawBorder: false,
+                },
+                border: {
+                    display: false,
+                },
+                title: {
+                    display: true,
+                    text: graphType === 'tests' ? 'Accuracy (%)' : 'Questions Solved',
+                    color: '#64748b',
+                    font: { size: 12, weight: '600' },
+                    padding: { bottom: 8 }
                 },
                 ticks: {
-                    color: '#94a3b8',
+                    color: '#64748b',
+                    font: { size: 12, weight: '500' },
+                    padding: 10,
+                    stepSize: graphType === 'leetcode' ? 1 : undefined,
+                    callback: (value) => {
+                        // For LeetCode, only show whole numbers (no decimals)
+                        if (graphType === 'leetcode' && !Number.isInteger(value)) {
+                            return '';
+                        }
+                        return graphType === 'tests' ? `${value}%` : value;
+                    },
                 }
             },
             x: {
                 grid: {
                     display: false,
                 },
+                border: {
+                    display: false,
+                },
+                title: {
+                    display: true,
+                    text: graphType === 'tests' ? 'Test Number' : 'Date',
+                    color: '#64748b',
+                    font: { size: 12, weight: '600' },
+                    padding: { top: 8 }
+                },
                 ticks: {
-                    color: '#94a3b8',
+                    color: '#64748b',
+                    font: { size: 11, weight: '500' },
+                    padding: 8,
                 }
             }
         },
@@ -158,6 +253,12 @@ const Dashboard = () => {
             mode: 'index',
             intersect: false,
         },
+        elements: {
+            line: {
+                borderCapStyle: 'round',
+                borderJoinStyle: 'round',
+            }
+        }
     };
 
     const containerVariants = {
@@ -482,36 +583,63 @@ const Dashboard = () => {
                     {/* Charts Section */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Performance Chart */}
-                        <div className="glass-card p-6 rounded-2xl bg-white/50 dark:bg-slate-800/50">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-bold text-slate-800 dark:text-white">Performance History</h3>
-                                <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-                                    <button
-                                        onClick={() => setGraphType('tests')}
-                                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${graphType === 'tests' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
-                                    >
-                                        Tests
-                                    </button>
-                                    <button
-                                        onClick={() => setGraphType('leetcode')}
-                                        disabled={!analytics?.leetcode}
-                                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${graphType === 'leetcode' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'} ${!analytics?.leetcode && 'opacity-50 cursor-not-allowed'}`}
-                                    >
-                                        LeetCode
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="relative group">
+                            {/* Gradient border effect */}
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 via-primary-500 to-indigo-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition-all duration-500"></div>
 
-                            {(graphType === 'tests' && analytics?.history?.length > 0) || (graphType === 'leetcode' && analytics?.leetcode?.submissionHistory?.length > 0) ? (
-                                <div className="h-64">
-                                    <Line options={chartOptions} data={performanceData} />
+                            <div className="relative glass-card p-6 rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-primary-600 text-white">
+                                            <BarChart2 className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-lg text-slate-800 dark:text-white">Performance History</h3>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                {graphType === 'tests'
+                                                    ? `${analytics?.history?.length || 0} tests tracked`
+                                                    : `${analytics?.leetcode?.submissionHistory?.length || 0} days tracked`
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner">
+                                        <button
+                                            onClick={() => setGraphType('tests')}
+                                            className={`text-xs px-4 py-2 rounded-lg font-semibold transition-all ${graphType === 'tests' ? 'bg-gradient-to-r from-violet-500 to-primary-500 text-white shadow-lg shadow-primary-500/30' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+                                        >
+                                            📊 Tests
+                                        </button>
+                                        <button
+                                            onClick={() => setGraphType('leetcode')}
+                                            disabled={!analytics?.leetcode}
+                                            className={`text-xs px-4 py-2 rounded-lg font-semibold transition-all ${graphType === 'leetcode' ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg shadow-green-500/30' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'} ${!analytics?.leetcode && 'opacity-50 cursor-not-allowed'}`}
+                                        >
+                                            💻 LeetCode
+                                        </button>
+                                    </div>
                                 </div>
-                            ) : (
-                                <div className="h-64 flex flex-col items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                                    <Activity className="w-8 h-8 mb-2 opacity-50" />
-                                    <p>No data available for this view</p>
-                                </div>
-                            )}
+
+                                {(graphType === 'tests' && analytics?.history?.length > 0) || (graphType === 'leetcode' && analytics?.leetcode?.submissionHistory?.length > 0) ? (
+                                    <div className="h-72 relative">
+                                        <Line options={chartOptions} data={performanceData} />
+                                        {/* Average indicator */}
+                                        {graphType === 'tests' && analytics?.stats?.avgAccuracy && (
+                                            <div className="absolute top-2 right-2 bg-violet-500/10 dark:bg-violet-500/20 px-3 py-1.5 rounded-lg border border-violet-500/20">
+                                                <span className="text-xs font-bold text-violet-600 dark:text-violet-400">
+                                                    Avg: {analytics.stats.avgAccuracy}%
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="h-72 flex flex-col items-center justify-center text-slate-400 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+                                        <Activity className="w-12 h-12 mb-3 opacity-30" />
+                                        <p className="font-medium">No data available yet</p>
+                                        <p className="text-sm mt-1">Take some tests to see your progress!</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
