@@ -1,25 +1,19 @@
 const express = require('express');
 const {
     getQuestions,
-    getQuestion,
-    createQuestion,
-    updateQuestion,
-    deleteQuestion
+    getQuestion
 } = require('../controllers/questions');
 
 const router = express.Router();
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 router
     .route('/')
-    .get(getQuestions)
-    .post(protect, authorize('admin'), createQuestion);
+    .get(getQuestions);
 
 router
     .route('/:id')
-    .get(getQuestion)
-    .put(protect, authorize('admin'), updateQuestion)
-    .delete(protect, authorize('admin'), deleteQuestion);
+    .get(getQuestion);
 
 module.exports = router;

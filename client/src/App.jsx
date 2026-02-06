@@ -6,12 +6,6 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 // Lazy load all page components for better performance
 const Login = lazy(() => import('./pages/auth/Login'));
 const Signup = lazy(() => import('./pages/auth/Signup'));
-const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
-const AdminQuestions = lazy(() => import('./pages/admin/AdminQuestions'));
-const AdminAddQuestion = lazy(() => import('./pages/admin/AdminAddQuestion'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
-const AdminTests = lazy(() => import('./pages/admin/AdminTests'));
-const AdminCreateTest = lazy(() => import('./pages/admin/AdminCreateTest'));
 const Dashboard = lazy(() => import('./pages/student/Dashboard'));
 const TestInstructions = lazy(() => import('./pages/student/TestInstructions'));
 const LiveTest = lazy(() => import('./pages/student/LiveTest'));
@@ -67,7 +61,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <Dashboard />
             </ProtectedRoute>
           }
@@ -75,7 +69,7 @@ function App() {
         <Route
           path="/test/:id/instructions"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <TestInstructions />
             </ProtectedRoute>
           }
@@ -83,7 +77,7 @@ function App() {
         <Route
           path="/test/:id/live"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <LiveTest />
             </ProtectedRoute>
           }
@@ -91,7 +85,7 @@ function App() {
         <Route
           path="/test/result/:id"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <TestResult />
             </ProtectedRoute>
           }
@@ -99,7 +93,7 @@ function App() {
         <Route
           path="/scan-resume"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <ResumeScan />
             </ProtectedRoute>
           }
@@ -107,7 +101,7 @@ function App() {
         <Route
           path="/experiences"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <InterviewExperiences />
             </ProtectedRoute>
           }
@@ -115,7 +109,7 @@ function App() {
         <Route
           path="/mock-interview"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <AIMockInterview />
             </ProtectedRoute>
           }
@@ -125,7 +119,7 @@ function App() {
         <Route
           path="/learning"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <LearningDashboard />
             </ProtectedRoute>
           }
@@ -133,7 +127,7 @@ function App() {
         <Route
           path="/learning/:subjectId"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <SubjectView />
             </ProtectedRoute>
           }
@@ -141,29 +135,11 @@ function App() {
         <Route
           path="/practice/:topicId"
           element={
-            <ProtectedRoute allowedRoles={['student', 'admin']}>
+            <ProtectedRoute allowedRoles={['student']}>
               <PracticeArena />
             </ProtectedRoute>
           }
         />
-
-        {/* Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="questions" element={<AdminQuestions />} />
-          <Route path="questions/new" element={<AdminAddQuestion />} />
-          <Route path="tests" element={<AdminTests />} />
-          <Route path="tests/new" element={<AdminCreateTest />} />
-          {/* Add more admin routes here */}
-        </Route>
 
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />

@@ -141,20 +141,46 @@ const generateInsights = async (req, res) => {
             Provide insights.`
         };
 
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [systemPrompt, userMessage],
-            model: "llama-3.3-70b-versatile",
-            temperature: 0.6,
-            max_tokens: 150,
-            response_format: { type: "json_object" }
-        });
+        // Retry logic for rate limits
+        let retries = 3;
+        let result = null;
 
-        const result = JSON.parse(chatCompletion.choices[0]?.message?.content || "{}");
-        res.json({ success: true, ...result });
+        while (retries > 0) {
+            try {
+                const chatCompletion = await groq.chat.completions.create({
+                    messages: [systemPrompt, userMessage],
+                    model: "llama-3.3-70b-versatile",
+                    temperature: 0.6,
+                    max_tokens: 150,
+                    response_format: { type: "json_object" }
+                });
+                result = JSON.parse(chatCompletion.choices[0]?.message?.content || "{}");
+                break; // Success, exit retry loop
+            } catch (apiError) {
+                if (apiError.status === 429 && retries > 1) {
+                    const waitTime = (4 - retries) * 2000; // 2s, 4s delays
+                    console.log(`Rate limited, waiting ${waitTime}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                    retries--;
+                } else {
+                    throw apiError; // Re-throw if not rate limit or out of retries
+                }
+            }
+        }
+
+        if (result) {
+            res.json({ success: true, ...result });
+        } else {
+            res.status(429).json({ success: false, error: "AI service is busy, please try again later." });
+        }
 
     } catch (error) {
         console.error("Error generating insights:", error);
-        res.status(500).json({ success: false, error: "Failed to generate insights" });
+        if (error.status === 429) {
+            res.status(429).json({ success: false, error: "AI rate limit reached. Please wait a moment and try again." });
+        } else {
+            res.status(500).json({ success: false, error: "Failed to generate insights" });
+        }
     }
 };
 

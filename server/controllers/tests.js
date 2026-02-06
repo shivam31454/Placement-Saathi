@@ -3,18 +3,6 @@ const Question = require('../models/Question');
 const Result = require('../models/Result');
 const ErrorResponse = require('../utils/errorResponse');
 
-// @desc    Create a new test
-// @route   POST /api/v1/tests
-// @access  Private (Admin)
-exports.createTest = async (req, res, next) => {
-    try {
-        const test = await Test.create(req.body);
-        res.status(201).json({ success: true, data: test });
-    } catch (err) {
-        next(err);
-    }
-};
-
 // @desc    Get all tests
 // @route   GET /api/v1/tests
 // @access  Private (Student)

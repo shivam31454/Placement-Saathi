@@ -1,6 +1,5 @@
 const express = require('express');
 const {
-    createTest,
     getTests,
     getTest,
     submitTest
@@ -8,14 +7,13 @@ const {
 
 const router = express.Router();
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 router.use(protect); // All test routes are protected
 
 router
     .route('/')
-    .get(getTests)
-    .post(authorize('admin'), createTest);
+    .get(getTests);
 
 router
     .route('/:id')

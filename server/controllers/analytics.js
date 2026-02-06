@@ -171,37 +171,4 @@ exports.getStudyRoadmap = async (req, res, next) => {
     }
 };
 
-// @desc    Get Admin Analytics (Platform Stats)
-// @route   GET /api/v1/analytics/admin
-// @access  Private (Admin)
-exports.getAdminAnalytics = async (req, res, next) => {
-    try {
-        const totalUsers = await require('../models/User').countDocuments({ role: 'student' });
-        const totalTests = await require('../models/Test').countDocuments();
-        const totalQuestions = await require('../models/Question').countDocuments();
 
-        // Results stats
-        const results = await Result.find().select('status score');
-        const totalAttempts = results.length;
-        const totalPass = results.filter(r => r.status === 'Pass').length;
-
-        const avgScore = totalAttempts > 0
-            ? (results.reduce((acc, curr) => acc + curr.score, 0) / totalAttempts).toFixed(2)
-            : 0;
-
-        res.status(200).json({
-            success: true,
-            data: {
-                users: totalUsers,
-                tests: totalTests,
-                questions: totalQuestions,
-                attempts: totalAttempts,
-                passRate: totalAttempts > 0 ? ((totalPass / totalAttempts) * 100).toFixed(1) : 0,
-                avgPlatformScore: avgScore
-            }
-        });
-
-    } catch (err) {
-        next(err);
-    }
-};

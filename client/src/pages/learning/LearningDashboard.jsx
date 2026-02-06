@@ -46,7 +46,7 @@ const LearningDashboard = () => {
             </div>
             {subjects.length === 0 && (
                 <div className="text-center text-gray-500 mt-10">
-                    No subjects found. Use Admin Panel to add subjects.
+                    No subjects found. Please check back later.
                 </div>
             )}
         </div>

@@ -37,7 +37,6 @@ app.use('/api/v1/experiences', require('./routes/experiencesRoutes'));
 app.use('/api/v1/leetcode', require('./routes/leetcodeRoutes'));
 app.use('/api/v1/learning', require('./routes/learningRoutes'));
 app.use('/api/v1/practice', require('./routes/practiceRoutes'));
-app.use('/api/v1/admin', require('./routes/adminRoutes'));
 
 
 

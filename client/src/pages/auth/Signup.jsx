@@ -5,20 +5,18 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import { motion } from 'framer-motion';
-import { UserPlus, User, Shield } from 'lucide-react';
-import { clsx } from 'clsx';
+import { UserPlus } from 'lucide-react';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        password: '',
-        role: 'student'
+        password: ''
     });
     const { register, isLoading, error } = useAuthStore();
     const navigate = useNavigate();
 
-    const { name, email, password, role } = formData;
+    const { name, email, password } = formData;
 
     const onChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,25 +96,7 @@ const Signup = () => {
                             required
                         />
 
-                        <div className="pt-2">
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 ml-1">I am a</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <RoleOption
-                                    value="student"
-                                    current={role}
-                                    onChange={onChange}
-                                    icon={User}
-                                    label="Student"
-                                />
-                                <RoleOption
-                                    value="admin"
-                                    current={role}
-                                    onChange={onChange}
-                                    icon={Shield}
-                                    label="Admin (Demo)"
-                                />
-                            </div>
-                        </div>
+
 
                         <Button
                             type="submit"
@@ -139,38 +119,5 @@ const Signup = () => {
         </div>
     );
 };
-
-const RoleOption = ({ value, current, onChange, icon: Icon, label }) => (
-    <label className={clsx(
-        "cursor-pointer border rounded-xl p-3 flex flex-col items-center justify-center transition-all duration-200 relative",
-        current === value
-            ? "border-secondary-500 bg-secondary-50 dark:bg-secondary-900/20 ring-1 ring-secondary-500"
-            : "border-slate-200 dark:border-slate-700 hover:border-secondary-300 dark:hover:border-secondary-700 bg-white/50 dark:bg-slate-800/50"
-    )}>
-        <input
-            type="radio"
-            name="role"
-            value={value}
-            checked={current === value}
-            onChange={onChange}
-            className="hidden"
-        />
-        <Icon className={clsx(
-            "w-6 h-6 mb-2 transition-colors",
-            current === value ? "text-secondary-600 dark:text-secondary-400" : "text-slate-400"
-        )} />
-        <span className={clsx(
-            "text-sm font-medium transition-colors",
-            current === value ? "text-secondary-700 dark:text-secondary-300" : "text-slate-500 dark:text-slate-400"
-        )}>{label}</span>
-
-        {current === value && (
-            <motion.div
-                layoutId="role-check"
-                className="absolute inset-0 rounded-xl border-2 border-secondary-500 pointer-events-none"
-            />
-        )}
-    </label>
-);
 
 export default Signup;
