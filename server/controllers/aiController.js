@@ -1,10 +1,13 @@
 const Groq = require('groq-sdk');
 require('dotenv').config({ override: true });
 
-
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
+
+// In-memory cache for AI insights (saves Groq API tokens)
+// Structure: { "userId_YYYY-MM-DD": { insights, timestamp } }
+const insightsCache = new Map();
 
 const generateInterviewResponse = async (req, res) => {
     try {
@@ -122,6 +125,17 @@ const generateChatResponse = async (req, res) => {
 const generateInsights = async (req, res) => {
     try {
         const { testPerformance, leetCodeStats } = req.body;
+        const userId = req.user?.id || 'anonymous';
+
+        // Generate cache key (userId + today's date)
+        const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+        const cacheKey = `${userId}_${today}`;
+
+        // Check if insights already generated today (saves API tokens!)
+        if (insightsCache.has(cacheKey)) {
+            console.log(`Returning cached insights for ${cacheKey}`);
+            return res.json({ success: true, cached: true, ...insightsCache.get(cacheKey) });
+        }
 
         const systemPrompt = {
             role: "system",
@@ -149,7 +163,7 @@ const generateInsights = async (req, res) => {
             try {
                 const chatCompletion = await groq.chat.completions.create({
                     messages: [systemPrompt, userMessage],
-                    model: "llama-3.3-70b-versatile",
+                    model: "llama-3.1-8b-instant",
                     temperature: 0.6,
                     max_tokens: 150,
                     response_format: { type: "json_object" }
@@ -169,7 +183,10 @@ const generateInsights = async (req, res) => {
         }
 
         if (result) {
-            res.json({ success: true, ...result });
+            // Cache the result for today (saves API tokens on subsequent requests)
+            insightsCache.set(cacheKey, result);
+            console.log(`Cached insights for ${cacheKey}`);
+            res.json({ success: true, cached: false, ...result });
         } else {
             res.status(429).json({ success: false, error: "AI service is busy, please try again later." });
         }
@@ -177,10 +194,13 @@ const generateInsights = async (req, res) => {
     } catch (error) {
         console.error("Error generating insights:", error);
         if (error.status === 429) {
-            res.status(429).json({ success: false, error: "AI rate limit reached. Please wait a moment and try again." });
-        } else {
-            res.status(500).json({ success: false, error: "Failed to generate insights" });
+            return res.status(429).json({
+                success: false,
+                error: "AI daily limit reached. Please try again later.",
+                retryAfter: error.headers?.["retry-after"] || null
+            });
         }
+        res.status(500).json({ success: false, error: "Failed to generate insights" });
     }
 };
 
