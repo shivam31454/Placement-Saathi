@@ -254,15 +254,6 @@ cd client && npm run dev
 | 5️⃣ | **Analyze** → Review performance analytics |
 | 6️⃣ | **Improve** → Follow AI-generated study roadmap |
 
-### 👨‍💼 For Admins
-
-| Feature | Description |
-|---------|-------------|
-| 📊 Dashboard | View platform statistics |
-| ❓ Question Bank | Add MCQ/Coding questions |
-| 📝 Test Management | Create and schedule tests |
-| 👥 Student Tracking | Monitor progress |
-
 ---
 
 ## 🌐 Deployment
@@ -311,7 +302,8 @@ GROQ_API_KEY=gsk_...
 - [x] LeetCode Integration
 - [x] Resume ATS Scanner
 - [x] Performance Optimizations
-- [ ] Video-based interviews with recording
+- [x] Interview Recording & Playback
+- [x] AI Rate Limit Handling
 - [ ] Peer-to-peer study groups
 - [ ] Company-specific tracks
 - [ ] Mobile App (React Native)
