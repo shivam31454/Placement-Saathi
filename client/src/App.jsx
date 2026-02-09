@@ -1,5 +1,6 @@
 import React, { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import useAuthStore from './store/useAuthStore';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
@@ -18,10 +19,18 @@ const LearningDashboard = lazy(() => import('./pages/learning/LearningDashboard'
 const SubjectView = lazy(() => import('./pages/learning/SubjectView'));
 const PracticeArena = lazy(() => import('./pages/learning/PracticeArena'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+
 const AIChatWidget = lazy(() => import('./components/chat/AIChatWidget'));
 const ThemeToggle = lazy(() => import('./components/ui/ThemeToggle'));
 
-// Protected Route Component
+// Admin Components
+const AdminLayout = lazy(() => import('./components/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const StudentManagement = lazy(() => import('./pages/admin/StudentManagement'));
+const StudentPerformance = lazy(() => import('./pages/admin/StudentPerformance'));
+const AddTest = lazy(() => import('./pages/admin/AddTest'));
+const ManageTests = lazy(() => import('./pages/admin/ManageTests'));
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, isLoading } = useAuthStore();
 
@@ -32,15 +41,17 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    return <Navigate to="/dashboard" replace />; // Redirect unauthorized users to student dashboard
+    // specific redirect based on role
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
 };
 
 
-import { AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 
 function App() {
   const { loadUser } = useAuthStore();
@@ -140,6 +151,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="students" element={<StudentManagement />} />
+          <Route path="student/:id" element={<StudentPerformance />} />
+          <Route path="manage-tests" element={<ManageTests />} />
+          <Route path="add-test" element={<AddTest />} />
+        </Route>
 
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />

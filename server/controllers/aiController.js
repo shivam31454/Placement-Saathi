@@ -125,16 +125,22 @@ const generateChatResponse = async (req, res) => {
 const generateInsights = async (req, res) => {
     try {
         const { testPerformance, leetCodeStats } = req.body;
-        const userId = req.user?.id || 'anonymous';
+        const userId = req.user?.id;
 
-        // Generate cache key (userId + today's date)
+        // Guard: Require authentication
+        if (!userId) {
+            return res.status(401).json({ success: false, error: "Authentication required" });
+        }
+
+        // Generate cache key (today's date)
         const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
-        const cacheKey = `${userId}_${today}`;
 
-        // Check if insights already generated today (saves API tokens!)
-        if (insightsCache.has(cacheKey)) {
-            console.log(`Returning cached insights for ${cacheKey}`);
-            return res.json({ success: true, cached: true, ...insightsCache.get(cacheKey) });
+        // Check if user has cached insights for today
+        const user = await require('../models/User').findById(userId);
+
+        if (user && user.aiInsights && user.aiInsights.date === today && user.aiInsights.data) {
+            console.log(`Returning cached insights from DB for user ${userId}`);
+            return res.json({ success: true, cached: true, ...user.aiInsights.data });
         }
 
         const systemPrompt = {
@@ -183,9 +189,14 @@ const generateInsights = async (req, res) => {
         }
 
         if (result) {
-            // Cache the result for today (saves API tokens on subsequent requests)
-            insightsCache.set(cacheKey, result);
-            console.log(`Cached insights for ${cacheKey}`);
+            // Cache the result in DB for today
+            await require('../models/User').findByIdAndUpdate(userId, {
+                aiInsights: {
+                    date: today,
+                    data: result
+                }
+            });
+            console.log(`Cached insights for user ${userId} in DB`);
             res.json({ success: true, cached: false, ...result });
         } else {
             res.status(429).json({ success: false, error: "AI service is busy, please try again later." });

@@ -12,6 +12,22 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    leetcodeVerified: {
+        type: Boolean,
+        default: false
+    },
+    leetcodeVerificationCode: {
+        type: String,
+        default: null
+    },
+    leetcodeVerificationExpiry: {
+        type: Date,
+        default: null
+    },
+    aiInsights: {
+        date: String,
+        data: Object
+    },
     email: {
         type: String,
         required: [true, 'Please provide an email'],
@@ -29,7 +45,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['student'],
+        enum: ['student', 'admin'],
         default: 'student',
     },
     resetPasswordToken: String,

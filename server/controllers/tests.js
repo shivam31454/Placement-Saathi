@@ -8,7 +8,13 @@ const ErrorResponse = require('../utils/errorResponse');
 // @access  Private (Student)
 exports.getTests = async (req, res, next) => {
     try {
-        const tests = await Test.find().sort('-createdAt');
+        // Find tests already taken by this user
+        const takenTests = await Result.find({ user: req.user.id }).select('test');
+        const takenTestIds = takenTests.map(r => r.test);
+
+        // Fetch tests NOT in the taken list
+        const tests = await Test.find({ _id: { $nin: takenTestIds } }).sort('-createdAt');
+
         res.status(200).json({ success: true, count: tests.length, data: tests });
     } catch (err) {
         next(err);

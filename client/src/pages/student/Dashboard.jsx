@@ -41,6 +41,13 @@ const Dashboard = () => {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [insights, setInsights] = useState(null);
 
+    // LeetCode verification states
+    const [verificationStep, setVerificationStep] = useState('idle'); // 'idle', 'pending', 'verifying'
+    const [verificationCode, setVerificationCode] = useState('');
+    const [verificationExpiry, setVerificationExpiry] = useState(null);
+    const [verificationError, setVerificationError] = useState('');
+    const [lcUsernameInput, setLcUsernameInput] = useState('');
+
     useEffect(() => {
         // Check for onboarding
         const hasSeenOnboarding = localStorage.getItem('onboarding_completed');
@@ -334,39 +341,120 @@ const Dashboard = () => {
                         <p className="text-slate-500 dark:text-slate-400 mt-1">Here's your progress overview for today.</p>
                     </div>
 
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center flex-wrap">
                         {analytics?.leetcode?.username ? (
-                            <div className="flex items-center gap-3 glass-panel px-4 py-2 rounded-xl">
+                            /* Already connected state */
+                            <div className="flex items-center gap-3 glass-panel px-4 py-2 rounded-xl bg-green-50/50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                                    Connected: <span className="text-primary-600 font-bold">{analytics.leetcode.username}</span>
+                                    ✅ Verified: <span className="text-green-600 dark:text-green-400 font-bold">{analytics.leetcode.username}</span>
                                 </span>
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         if (confirm("Unlink current LeetCode account?")) {
-                                            api.post('/leetcode/username', { username: null }).then(() => window.location.reload());
+                                            await api.post('/leetcode/unlink');
+                                            window.location.reload();
                                         }
                                     }}
-                                    className="text-xs text-red-500 hover:text-red-600 font-medium hover:underline"
+                                    className="text-xs text-red-500 hover:text-red-600 font-medium hover:underline ml-2"
                                 >
-                                    Change
+                                    Unlink
                                 </button>
                             </div>
+                        ) : verificationStep === 'pending' ? (
+                            /* Pending verification - show code and instructions */
+                            <div className="glass-panel p-4 rounded-xl w-full max-w-lg bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
+                                <div className="flex items-start gap-3 mb-3">
+                                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                                        <span className="text-xl">🔐</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-slate-800 dark:text-white text-sm">Verify Your LeetCode Account</h4>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                            Add this code to your LeetCode Display Name, then click Verify
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-900 dark:bg-slate-950 rounded-lg p-3 mb-3 flex items-center justify-between">
+                                    <code className="text-lg font-bold text-green-400 tracking-wider">{verificationCode}</code>
+                                    <button
+                                        onClick={() => { navigator.clipboard.writeText(verificationCode); alert('Copied!'); }}
+                                        className="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg transition-colors"
+                                    >
+                                        Copy
+                                    </button>
+                                </div>
+
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-3 space-y-1">
+                                    <p>1. Go to <a href="https://leetcode.com/profile/" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">leetcode.com/profile</a></p>
+                                    <p>2. Edit Profile → Add code to your <b>"Display Name"</b> (e.g., "Shivam PS-abc123")</p>
+                                    <p>3. Save and click Verify below (you can remove it after)</p>
+                                </div>
+
+                                {verificationError && (
+                                    <div className="text-xs text-red-600 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg mb-3">
+                                        ❌ {verificationError}
+                                    </div>
+                                )}
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        onClick={async () => {
+                                            setVerificationStep('verifying');
+                                            setVerificationError('');
+                                            try {
+                                                const res = await api.post('/leetcode/verify');
+                                                if (res.data.success) {
+                                                    alert('✅ Verified successfully!');
+                                                    window.location.reload();
+                                                }
+                                            } catch (err) {
+                                                setVerificationError(err.response?.data?.error || 'Verification failed');
+                                                setVerificationStep('pending');
+                                            }
+                                        }}
+                                        disabled={verificationStep === 'verifying'}
+                                        className="flex-1"
+                                    >
+                                        {verificationStep === 'verifying' ? '⏳ Checking...' : '✓ Verify Now'}
+                                    </Button>
+                                    <button
+                                        onClick={() => { setVerificationStep('idle'); setVerificationCode(''); setVerificationError(''); }}
+                                        className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
                         ) : (
-                            <div className="flex gap-2">
+                            /* Initial state - enter username */
+                            <div className="flex gap-2 items-center">
                                 <input
                                     type="text"
                                     placeholder="LeetCode Username"
-                                    id="lc-username"
-                                    className="px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary-500/50"
+                                    value={lcUsernameInput}
+                                    onChange={(e) => setLcUsernameInput(e.target.value)}
+                                    className="px-4 py-2 border rounded-xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary-500/50 w-48"
                                 />
-                                <Button onClick={async () => {
-                                    const username = document.getElementById('lc-username').value;
-                                    if (!username) return;
-                                    try {
-                                        await api.post('/leetcode/username', { username });
-                                        window.location.reload();
-                                    } catch (e) { alert("Failed to link LeetCode"); }
-                                }}>Link LeetCode</Button>
+                                <Button
+                                    onClick={async () => {
+                                        if (!lcUsernameInput.trim()) return;
+                                        setVerificationError('');
+                                        try {
+                                            const res = await api.post('/leetcode/initiate-verification', { username: lcUsernameInput.trim() });
+                                            if (res.data.success) {
+                                                setVerificationCode(res.data.verificationCode);
+                                                setVerificationExpiry(res.data.expiresAt);
+                                                setVerificationStep('pending');
+                                            }
+                                        } catch (err) {
+                                            alert(err.response?.data?.error || 'Failed to initiate verification');
+                                        }
+                                    }}
+                                >
+                                    Link LeetCode
+                                </Button>
                             </div>
                         )}
                     </div>

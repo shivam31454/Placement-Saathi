@@ -4,13 +4,18 @@ const ErrorResponse = require('../utils/errorResponse');
 // @desc    Get student analytics
 // @route   GET /api/v1/analytics/student
 // @access  Private (Student)
+const mongoose = require('mongoose');
+
+// @desc    Get student analytics
+// @route   GET /api/v1/analytics/student
+// @access  Private (Student)
 exports.getStudentAnalytics = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = new mongoose.Types.ObjectId(req.user.id);
 
         // 1. Overall Stats
         const overallStats = await Result.aggregate([
-            { $match: { user: userId } }, // Pass the ObjectId directly since aggregation usually expects ObjectId or does casting
+            { $match: { user: userId } },
             {
                 $group: {
                     _id: null,
@@ -38,6 +43,7 @@ exports.getStudentAnalytics = async (req, res, next) => {
         // This is complex because Answers array references Question ID. 
         // We can do a deep aggregation.
 
+        // 3. Subject-wise Analysis
         const subjectAnalysis = await Result.aggregate([
             { $match: { user: userId } },
             { $unwind: '$answers' },
@@ -89,7 +95,7 @@ exports.getStudentAnalytics = async (req, res, next) => {
 // @access  Private
 exports.getStudyRoadmap = async (req, res, next) => {
     try {
-        const userId = req.user.id;
+        const userId = new mongoose.Types.ObjectId(req.user.id);
 
         // 1. Identify Weak Areas (Accuracy < 60%)
         const subjectPerformance = await Result.aggregate([

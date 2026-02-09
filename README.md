@@ -186,33 +186,40 @@
 
 ---
 
-## 🗂️ Database Architecture
-
-Comprehensive Entity-Relationship (ER) diagrams are available in [`ER_DIAGRAMS.md`](./ER_DIAGRAMS.md).
+## 🛡️ Admin Portal
 
 <details>
-<summary><b>📊 ER Diagram Overview</b> (Click to expand)</summary>
+<summary><b>📋 Admin Features</b> (Click to expand)</summary>
 
-### Database Entities
+### 📊 Dashboard
+- Overview of total students, tests, and questions
+- Recent activity monitoring
+- Quick stats and metrics
 
-| Entity | Type | Description |
-|--------|------|-------------|
-| **User** | Core | Student/Admin authentication & profiles |
-| **Subject** | Content | Subject categories (DSA, DBMS, etc.) |
-| **Topic** | Content | Learning topics with markdown content |
-| **Question** | Content | MCQ/Coding questions for tests |
-| **Test** | Content | Mock tests with multiple questions |
-| **PracticeQuestion** | Content | AI-generated practice questions |
-| **Result** | Activity | Test completion records |
-| **Progress** | Activity | Topic learning progress |
-| **TestAttempt** | Activity | Topic practice test records |
-| **Experience** | Community | Interview experiences shared |
+### 📚 Content Management
+| Feature | Capabilities |
+|---------|-------------|
+| **Subjects** | Create, edit, delete subject categories (DSA, DBMS, OS, etc.) |
+| **Topics** | Add learning topics with markdown content, set difficulty levels |
+| **Questions** | Create MCQ & Coding questions with test cases |
+| **Tests** | Build mock tests, set duration, passing marks |
 
-### ER Diagrams Available
-- 🎓 **Student Portal ER** - User interactions with learning content
-- 🛡️ **Admin Portal ER** - Content management entities  
-- 🔗 **Complete System ER** - Full system architecture
-- 📈 **System Flow Diagram** - How data flows between portals
+### 👥 User Management
+- View all registered students
+- Monitor student progress and performance
+- Manage user roles and permissions
+
+### 📝 Experience Moderation
+- Review submitted interview experiences
+- Approve/reject content before publishing
+- Manage community contributions
+
+### 🔧 Admin Access
+```bash
+# Admin login credentials (development)
+Email: admin@placementsaathi.com
+Password: Set during seeding
+```
 
 </details>
 

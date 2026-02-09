@@ -1,7 +1,141 @@
 const axios = require('axios');
 const User = require('../models/User');
+const crypto = require('crypto');
 
-// @desc    Update LeetCode Username
+// @desc    Initiate LeetCode Verification - Generate code for user to add to bio
+// @route   POST /api/v1/leetcode/initiate-verification
+// @access  Private
+const initiateVerification = async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        if (!username || username.trim() === '') {
+            return res.status(400).json({ success: false, error: 'LeetCode username is required' });
+        }
+
+        // Check if username exists on LeetCode
+        const checkQuery = `
+        query getUserProfile($username: String!) {
+            matchedUser(username: $username) {
+                username
+                profile {
+                    aboutMe
+                }
+            }
+        }`;
+
+        const lcResponse = await axios.post('https://leetcode.com/graphql', {
+            query: checkQuery,
+            variables: { username: username.trim() }
+        });
+
+        if (!lcResponse.data.data.matchedUser) {
+            return res.status(404).json({ success: false, error: 'LeetCode username not found' });
+        }
+
+        // Generate unique verification code
+        const verificationCode = 'PS-' + crypto.randomBytes(4).toString('hex');
+        const expiryTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        // Save to user (pending verification)
+        await User.findByIdAndUpdate(req.user.id, {
+            leetcodeUsername: username.trim(),
+            leetcodeVerified: false,
+            leetcodeVerificationCode: verificationCode,
+            leetcodeVerificationExpiry: expiryTime
+        });
+
+        res.status(200).json({
+            success: true,
+            verificationCode,
+            expiresAt: expiryTime,
+            username: username.trim()
+        });
+
+    } catch (error) {
+        console.error('Initiate verification error:', error.message);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
+
+// @desc    Verify LeetCode by checking display name for verification code
+// @route   POST /api/v1/leetcode/verify
+// @access  Private
+const verifyLeetCode = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user.leetcodeUsername || !user.leetcodeVerificationCode) {
+            return res.status(400).json({ success: false, error: 'No pending verification. Please initiate first.' });
+        }
+
+        // Check if code expired
+        if (new Date() > new Date(user.leetcodeVerificationExpiry)) {
+            return res.status(400).json({ success: false, error: 'Verification code expired. Please start again.' });
+        }
+
+        // Fetch LeetCode profile - check realName (Display Name)
+        const profileQuery = `
+        query getUserProfile($username: String!) {
+            matchedUser(username: $username) {
+                profile {
+                    realName
+                }
+            }
+        }`;
+
+        const lcResponse = await axios.post('https://leetcode.com/graphql', {
+            query: profileQuery,
+            variables: { username: user.leetcodeUsername }
+        });
+
+        const displayName = lcResponse.data.data.matchedUser?.profile?.realName || '';
+
+        // Check if verification code is in display name
+        if (!displayName.includes(user.leetcodeVerificationCode)) {
+            return res.status(400).json({
+                success: false,
+                error: `Verification code "${user.leetcodeVerificationCode}" not found in your LeetCode Display Name. Please add it temporarily and try again.`
+            });
+        }
+
+        // Verified! Mark as verified
+        await User.findByIdAndUpdate(req.user.id, {
+            leetcodeVerified: true,
+            leetcodeVerificationCode: null,
+            leetcodeVerificationExpiry: null
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'LeetCode account verified successfully!',
+            username: user.leetcodeUsername
+        });
+
+    } catch (error) {
+        console.error('Verify LeetCode error:', error.message);
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
+
+// @desc    Unlink LeetCode (for changing accounts)
+// @route   POST /api/v1/leetcode/unlink
+// @access  Private
+const unlinkLeetCode = async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user.id, {
+            leetcodeUsername: null,
+            leetcodeVerified: false,
+            leetcodeVerificationCode: null,
+            leetcodeVerificationExpiry: null
+        });
+        res.status(200).json({ success: true, message: 'LeetCode account unlinked' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Server Error' });
+    }
+};
+
+// @desc    Update LeetCode Username (deprecated, use initiateVerification instead)
 // @route   POST /api/v1/leetcode/username
 // @access  Private
 const updateUsername = async (req, res) => {
@@ -82,7 +216,7 @@ const getAnalytics = async (req, res) => {
 
         // 3. Get Recommendations for top 3 Weak Areas
         let recommendations = [];
-        for (const area of weakAreas) {
+        for (const area of weakAreas.slice(0, 3)) {
             const recs = await fetchRecommendations(area.tagSlug);
             recommendations.push({
                 topic: area.tagName,
@@ -205,4 +339,4 @@ async function fetchRecommendations(tagSlug) {
     }
 }
 
-module.exports = { updateUsername, getAnalytics };
+module.exports = { updateUsername, getAnalytics, initiateVerification, verifyLeetCode, unlinkLeetCode };
