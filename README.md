@@ -186,6 +186,38 @@
 
 ---
 
+## 🗂️ Database Architecture
+
+Comprehensive Entity-Relationship (ER) diagrams are available in [`ER_DIAGRAMS.md`](./ER_DIAGRAMS.md).
+
+<details>
+<summary><b>📊 ER Diagram Overview</b> (Click to expand)</summary>
+
+### Database Entities
+
+| Entity | Type | Description |
+|--------|------|-------------|
+| **User** | Core | Student/Admin authentication & profiles |
+| **Subject** | Content | Subject categories (DSA, DBMS, etc.) |
+| **Topic** | Content | Learning topics with markdown content |
+| **Question** | Content | MCQ/Coding questions for tests |
+| **Test** | Content | Mock tests with multiple questions |
+| **PracticeQuestion** | Content | AI-generated practice questions |
+| **Result** | Activity | Test completion records |
+| **Progress** | Activity | Topic learning progress |
+| **TestAttempt** | Activity | Topic practice test records |
+| **Experience** | Community | Interview experiences shared |
+
+### ER Diagrams Available
+- 🎓 **Student Portal ER** - User interactions with learning content
+- 🛡️ **Admin Portal ER** - Content management entities  
+- 🔗 **Complete System ER** - Full system architecture
+- 📈 **System Flow Diagram** - How data flows between portals
+
+</details>
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
