@@ -1,45 +1,32 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/v1/admin';
-
-// Get token from local storage
-const getToken = () => {
-    return localStorage.getItem('token');
-};
-
-const config = () => ({
-    headers: {
-        Authorization: `Bearer ${getToken()}`,
-    },
-});
+import api from './api';
 
 const getStudents = async () => {
-    const response = await axios.get(`${API_URL}/students`, config());
+    const response = await api.get('/admin/students');
     return response.data;
 };
 
 const getStudentPerformance = async (studentId) => {
-    const response = await axios.get(`${API_URL}/student/${studentId}/performance`, config());
+    const response = await api.get(`/admin/student/${studentId}/performance`);
     return response.data;
 };
 
 const getDashboardStats = async () => {
-    const response = await axios.get(`${API_URL}/stats`, config());
+    const response = await api.get('/admin/stats');
     return response.data;
 };
 
 const createTest = async (testData) => {
-    const response = await axios.post(`${API_URL}/test`, testData, config());
+    const response = await api.post('/admin/test', testData);
     return response.data;
 };
 
 const getAllTests = async () => {
-    const response = await axios.get(`${API_URL}/tests`, config());
+    const response = await api.get('/admin/tests');
     return response.data;
 };
 
 const deleteTest = async (testId) => {
-    const response = await axios.delete(`${API_URL}/test/${testId}`, config());
+    const response = await api.delete(`/admin/test/${testId}`);
     return response.data;
 };
 
