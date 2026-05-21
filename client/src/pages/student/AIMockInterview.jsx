@@ -20,6 +20,17 @@ const AIMockInterview = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [selectedGender, setSelectedGender] = useState(null); // 'male' or 'female'
 
+    const isStartedRef = useRef(false);
+    const isSpeakingRef = useRef(false);
+    const isLoadingRef = useRef(false);
+    const latestInputTextRef = useRef('');
+    const silenceTimerRef = useRef(null);
+
+    useEffect(() => { isStartedRef.current = isStarted; }, [isStarted]);
+    useEffect(() => { isSpeakingRef.current = isSpeaking; }, [isSpeaking]);
+    useEffect(() => { isLoadingRef.current = isLoading; }, [isLoading]);
+    useEffect(() => { latestInputTextRef.current = inputText; }, [inputText]);
+
     // Recording State
     const [isRecording, setIsRecording] = useState(false);
     const [videoBlob, setVideoBlob] = useState(null);
@@ -49,6 +60,21 @@ const AIMockInterview = () => {
                 }
                 setInputText(finalTranscript);
                 setMicError('');
+
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+                silenceTimerRef.current = setTimeout(() => {
+                    if (latestInputTextRef.current.trim() && isStartedRef.current && !isLoadingRef.current) {
+                        handleSendMessage(null, latestInputTextRef.current);
+                    }
+                }, 5000);
+            };
+
+            recognitionRef.current.onend = () => {
+                if (isStartedRef.current && !isSpeakingRef.current && !isLoadingRef.current) {
+                    try { recognitionRef.current.start(); } catch (e) {}
+                } else {
+                    setIsListening(false);
+                }
             };
 
             recognitionRef.current.onerror = (event) => {
@@ -146,9 +172,30 @@ const AIMockInterview = () => {
 
             if (preferredVoice) utterance.voice = preferredVoice;
 
-            utterance.onstart = () => setIsSpeaking(true);
-            utterance.onend = () => setIsSpeaking(false);
-            utterance.onerror = () => setIsSpeaking(false);
+            utterance.onstart = () => {
+                setIsSpeaking(true);
+                if (recognitionRef.current) {
+                    try { recognitionRef.current.stop(); } catch(e) {}
+                }
+            };
+            utterance.onend = () => {
+                setIsSpeaking(false);
+                if (isStartedRef.current && recognitionRef.current) {
+                    try {
+                        recognitionRef.current.start();
+                        setIsListening(true);
+                    } catch(e) {}
+                }
+            };
+            utterance.onerror = () => {
+                setIsSpeaking(false);
+                if (isStartedRef.current && recognitionRef.current) {
+                    try {
+                        recognitionRef.current.start();
+                        setIsListening(true);
+                    } catch(e) {}
+                }
+            };
 
             synthRef.current.speak(utterance);
         }
@@ -169,6 +216,10 @@ const AIMockInterview = () => {
         setIsStarted(false);
         stopRecording();
         setSelectedGender(null);
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        if (recognitionRef.current) {
+            try { recognitionRef.current.stop(); } catch (e) {}
+        }
         if (synthRef.current) synthRef.current.cancel();
     };
 
@@ -176,12 +227,14 @@ const AIMockInterview = () => {
         setMessages(prev => [...prev, { sender, text, timestamp: new Date() }]);
     };
 
-    const handleSendMessage = async (e) => {
+    const handleSendMessage = async (e, forceText = null) => {
         e?.preventDefault();
-        if (!inputText.trim()) return;
+        const msgToSend = forceText || inputText;
+        if (!msgToSend.trim()) return;
 
-        const userMsg = inputText;
-        addMessage('user', userMsg);
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+        addMessage('user', msgToSend);
         setInputText('');
         setIsListening(false);
         if (recognitionRef.current) {
@@ -194,7 +247,7 @@ const AIMockInterview = () => {
             // Call Backend API
             const response = await api.post('/ai/interview', {
                 history: messages, // Send previous context
-                message: userMsg
+                message: msgToSend
             });
 
             const aiResponse = response.data.response;
@@ -327,7 +380,7 @@ const AIMockInterview = () => {
                     </Card>
 
                     {/* Right Panel: Chat Interface */}
-                    <Card className="col-span-1 flex flex-col h-full border-slate-200 dark:border-slate-800">
+                    <Card className="col-span-1 flex flex-col h-full max-h-full border-slate-200 dark:border-slate-800 overflow-hidden">
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-between items-center">
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Live Transcript</span>
                             {isStarted && (

@@ -5,7 +5,7 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import { motion } from 'framer-motion';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -13,6 +13,7 @@ const Signup = () => {
         email: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const { register, isLoading, error } = useAuthStore();
     const navigate = useNavigate();
 
@@ -88,12 +89,14 @@ const Signup = () => {
                         />
                         <Input
                             label="Password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             name="password"
                             value={password}
                             onChange={onChange}
                             required
+                            endIcon={showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            onEndIconClick={() => setShowPassword(!showPassword)}
                         />
 
 
